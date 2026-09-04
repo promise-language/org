@@ -62,9 +62,10 @@ hermetic is each project's commit gate.
 Two positions, each doing what it is good at:
 
 - **A guard, at the edit.** An agent proposing to modify anything under `docs/org/` is refused
-  before it happens, with the pointer here: the copy's home is this repository, and the edit
-  belongs upstream. Cheap and immediate — and it fails open, which is why it is not the only
-  check.
+  before it happens, and the refusal carries the whole recovery: *this content comes from `org`;
+  to change it, file an issue against `org`*. The blocked edit is not lost work — its substance
+  becomes the issue's body. Cheap and immediate — and it fails open, which is why it is not the
+  only check.
 - **A gate, at integration.** Where the network is already legitimate, the gate compares
   `docs/org/` against the org tag the stamp claims. A copy that does not match its claimed tag —
   however the edit happened — is **divergence**, and the change is refused.
