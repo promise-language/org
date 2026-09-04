@@ -57,3 +57,5 @@ to.
   invocation surface.
 - [proposals/anchoring.md](proposals/anchoring.md) — Aspects whose modification requires a
   person's approval, and the path an approval travels.
+- [proposals/distribution.md](proposals/distribution.md) — How a ratified document reaches every
+  managed project, and what keeps the copies honest.
