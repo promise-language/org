@@ -8,6 +8,12 @@ tree — a rule that lives in another repo is not in an agent's context at the m
 followed. This document is about the machinery behind that sentence: where the copy comes from,
 how it changes, and how a wrong copy is caught.
 
+The vendored set is more than the guides. **The legal files ride the same loop** — `LICENSE`
+(worded without a repo name so the bytes are identical everywhere), `LICENSE-APACHE`,
+`LICENSE-MIT` with the one org-wide holder line, and the shared sections of `CONTRIBUTING.md`
+(CLA, licensing of contributions, commit identity) — because a fleet whose license texts drift
+per repo has several licenses where it means to have one.
+
 ## Three parties
 
 | Party | Lives | Changes when |
