@@ -40,6 +40,15 @@ Two narrow uses are sanctioned, and both are outside the tool's outcome:
 `--my-long-flag` and `-my-long-flag` are one flag. `--myLongFlag`, `--my_long_flag`, and
 abbreviations are not flags at all — they are unknown input (§7).
 
+> **A name — a flag's or a subcommand's — is lowercase ASCII letters `a`–`z` and digits `0`–`9`,
+> with `-` as the only separator.** Nothing else: no uppercase, no underscores, no dots, no
+> characters outside ASCII.
+
+Case is the cheapest way to mint an accidental alias — `--force` and `--Force` are one name to a
+person and two to a matcher — and anything beyond lowercase ASCII is a name that types
+differently across keyboards, shells, and platforms. A closed alphabet keeps every name exactly
+as greppable, quotable, and portable as the one canonical spelling requires.
+
 > **One name per flag. No aliases, no fallbacks.** There is exactly one canonical way to pass each
 > parameter, and that way is the one help text, error messages, and documentation use.
 
