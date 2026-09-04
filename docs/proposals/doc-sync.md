@@ -1,4 +1,4 @@
-# Sync Automation
+# Doc Sync
 
 **Proposal. Not normative.** The machinery behind [distribution](distribution.md)'s loop — what
 runs it, from where, and what may run unattended. Everything described here is **org tools and

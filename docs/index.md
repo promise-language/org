@@ -59,5 +59,5 @@ to.
   person's approval, and the path an approval travels.
 - [proposals/distribution.md](proposals/distribution.md) — How a ratified document reaches every
   managed project, and what keeps the copies honest.
-- [proposals/sync-automation.md](proposals/sync-automation.md) — The org tools and org CI that
+- [proposals/doc-sync.md](proposals/doc-sync.md) — The org tools and org CI that
   drive the distribution loop, and what may run unattended.

@@ -104,7 +104,7 @@ path and the integration gate covers every path.
 - The stamp's form — one file naming the tag, or the tag plus per-file hashes so the integration
   gate can name exactly which file diverged without a full diff.
 - The labels the sync and reconciliation items carry. The machinery itself — the tools, the
-  workflows, and their triggers — is drafted in [sync-automation](sync-automation.md); both live
+  workflows, and their triggers — is drafted in [doc-sync](doc-sync.md); both live
   in this repository.
 - The reconciliation pass's shape: one pass item per project per release, or one per amended
   document.
