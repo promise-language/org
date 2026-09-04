@@ -80,6 +80,9 @@ shadow the real path all fail it. When a second way is found, one of the two is 
 - **Documentation is part of the change, not after it.** A change that makes a document wrong is
   incomplete; the docs corpus is load-bearing, and its cross-references are claims meant to be
   checked.
+- **Published text cites repository-relative paths, never absolute ones.** An absolute path in a
+  report, an issue, or a summary names a person and a machine no reader shares — unusable to
+  everyone who reads it, before any disclosure rule says a word.
 
 > **No `TODO` comments. Fix it now, or file it and reference the issue.**
 
@@ -147,11 +150,52 @@ platform never learns about: a gap is a platform request, not a local problem.
 - **The exception is deliberate vendoring**, as with this document — byte-identical, hash-checked,
   with its source named.
 
+## Plan first, then follow it
+
+> **A plan names the files and functions it will change and what each change does — and it plans
+> the smallest change that resolves the item.** A plan that could have been written without
+> opening the repository is not a plan.
+
+- **A bug is reproduced before it is fixed** — a minimal failing test or command. A fix for a
+  bug nobody reproduced fixes a guess.
+- **The boundary is part of the plan.** Say what is deliberately not being done, and why: the
+  smallest change is a decision, and unstated it reads as an omission.
+- **Planning and implementing are different acts.** A planner that starts implementing ends up
+  describing work it has already half-done, and the plan stops being reviewable as a statement
+  of intent.
+
+> **A reviewed plan is followed, or renegotiated — never silently substituted.** Discovering
+> mid-implementation that the plan is wrong is a finding: say so and stop. The plan was
+> reviewed; the substitution was not.
+
 ## Keep a change to its subject
 
 **Do not refactor or add unrelated features while implementing something else.** A change that
 carries passengers is a change nobody can review, and a revert takes the passengers with it.
 Improvements found along the way are their own item, filed and linked, not folded in.
+
+An unrelated *fix* folded in is the worst passenger. Once the same problem is repaired on the
+mainline — and it will be, by someone who does not know your copy exists — the two are one fix
+spelled twice; git cannot know they are equivalent, so they conflict on every rebase from then
+on, with nothing in the history to say they were the same repair. If something else is broken,
+file it and leave it alone.
+
+## Sharing a mainline
+
+The mainline moves while a change is being made. Three rules keep the two from corrupting each
+other:
+
+- **A pre-existing failure is not yours to fix here.** A failure that demonstrably reproduces on
+  the base commit, without your changes, is filed so the breakage is recorded — and left alone.
+  Carrying someone else's fix inside this change is the passenger rule's permanent conflict,
+  introduced knowingly.
+- **A duplicate fix is resolved toward the mainline.** When a conflict exists because the
+  mainline already landed the repair this change carries, keeping both sides spells one fix
+  twice: take the mainline's version, drop this one, and record what was dropped. Every other
+  conflict integrates both sides — the intent of the change and the incoming work — never
+  whichever side makes the markers go away.
+- **After a rebase, the full gate runs again.** A rebase can introduce semantic conflicts git
+  never flags: both sides apply cleanly, and the result is still wrong.
 
 ## Time is not a coordinate
 
@@ -193,13 +237,40 @@ unrelated.
 - Public is a commitment: it is what other modules compile against and what wire compatibility
   constrains. Reaching for it early is how a private detail becomes a permanent one.
 
+## Never weaken the gate
+
+> **When a check fails, fix the cause.** Never skip, disable, delete, or mark as
+> expected-to-fail a failing check to get past it — and never suppress the class of failure it
+> guards as the fix.
+
+A check that is genuinely wrong is a finding, not an obstacle: say so and stop, and the change
+to the check lands as its own reviewed change. Weakened in passing, a gate keeps its name and
+loses its meaning, and every later change inherits a hole exactly where something already went
+wrong once.
+
+## The tree holds deliberate source
+
+- **Nothing lands that was not meant to.** Build artifacts, scratch files, and stray binaries
+  are deleted before the change is done — not left unstaged, where the next add finds them
+  again.
+- **Never `.gitignore` something to get past a check.** An ignored file survives locally, keeps
+  local verification passing, and breaks the mainline that never receives it — the tree that was
+  verified is no longer the tree that lands.
+
 ## Testing
 
 - **Every behavioural change is tested** — the change itself, its edge cases, and its error paths.
   A test that covers only the happy path documents the feature and verifies almost nothing.
+- **A test must fail when the behaviour regresses — that is the only question that matters.**
+  Would this test fail if the change were reverted? A test that passes either way is worse than
+  no test, because it reads as coverage.
+- **Do not pad.** A test that restates the implementation, or asserts what the type system
+  already guarantees, costs review time forever and catches nothing.
 - **Audit resource invariants, not just line coverage.** Every allocating type gets a cleanup
   test; concurrency code gets a stress test. A covered line that leaks is covered and wrong.
-- **Genuinely untestable code is filed, not skipped** — say why in the item.
+- **Code that cannot be tested is not finished — restructure it so that it can be.** An
+  untestable remainder that survives the attempt is filed, naming what resists testing and what
+  would have to change: a reason is accountable, a bare list is a handoff to nobody.
 - **Co-locate tests with the code they test.** A separate tree is for cross-cutting integration
   tests only.
 - **Tests never rely on the environment they happen to run in** — the host's locale, a
@@ -227,6 +298,27 @@ An environment variable is inherited and hidden: it selects behaviour invisibly,
 child process, and makes two identical command lines do different things. It is the exact opposite
 of [one obvious way](#one-obvious-way). A capability reachable only by setting a variable is a
 missing flag, and the fix is the flag.
+
+## Ask, do not guess
+
+> **A decision you cannot make from the item, the code, and the documents is asked for — never
+> guessed, and never worked around.**
+
+The ask carries the decision needed, the evidence it rests on, and a recommendation: a reader
+cannot choose between options without seeing what they are choosing about. Ask only what you
+genuinely cannot decide — a question is for a missing decision, not for something unread.
+
+## Evidence, not assertion
+
+- **A claim of "already done", "cannot be done", or "not needed" carries proof** — the commit,
+  the code, the reproduction. Without it, the claim is indistinguishable from giving up, and
+  producing the work stays the expected outcome.
+- **A concrete failing input beats a general worry.** In review, name the input and the wrong
+  output it produces; a worry without one is a question, not a finding.
+- **Nothing is manufactured to look thorough.** Finding nothing is a legitimate result, stated
+  plainly; a padded finding spends everyone's attention on nothing.
+- **Report what happened, not what was intended.** A summary describes the change that exists —
+  which is not always the change that was planned.
 
 ## Prompts point here; they do not restate this
 
