@@ -151,14 +151,16 @@ The same rule covers unknown subcommands, missing required parameters, values fa
 misplaced flags (§4), and contradictory parameters. Validation is exhaustive: every problem with
 the invocation is reported, not just the first.
 
-## 9. `--file`: the whole invocation, from a file
+## 9. `-json-input`: the whole invocation, from a file
 
-> **`--file /path/to/args.json` supplies parameters from a JSON file whose schema maps exactly to
-> the tool's flags**, plus `"args"`, an array carrying the non-flag arguments. An unknown key in
-> the file is an unknown flag (§8).
+> **`-json-input /path/to/args.json` supplies parameters from a JSON file whose schema maps
+> exactly to the tool's flags**, plus `"args"`, an array carrying the non-flag arguments. An
+> unknown key in the file is an unknown flag (§8).
 
 The file is a transport for the same closed parameter set, not a second configuration system: no
-key exists in the file that does not exist as a flag.
+key exists in the file that does not exist as a flag. The name is deliberately not `-file` or
+`-input` — bare words a tool's own domain will want for its actual inputs; `-json-input` names
+the mechanism, so it collides with nothing a tool processes.
 
 > **A parameter set both in the file and on the command line is a usage error.** There is no
 > precedence between the two, because precedence is a fallback (§3).
