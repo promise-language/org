@@ -174,21 +174,25 @@ platform never learns about: a gap is a platform request, not a local problem.
 carries passengers is a change nobody can review, and a revert takes the passengers with it.
 Improvements found along the way are their own item, filed and linked, not folded in.
 
-An unrelated *fix* folded in is the worst passenger. Once the same problem is repaired on the
-mainline — and it will be, by someone who does not know your copy exists — the two are one fix
-spelled twice; git cannot know they are equivalent, so they conflict on every rebase from then
-on, with nothing in the history to say they were the same repair. If something else is broken,
-file it and leave it alone.
+An unrelated *fix* folded in silently is the worst passenger. Once the same problem is repaired
+on the mainline — likeliest exactly when it is also filed, or visible to someone else — the two
+are one fix spelled twice; git cannot know they are equivalent, so they conflict on every rebase
+from then on, with nothing in the history to say they were the same repair. A breakage you trip
+over is routed by the pre-existing-failure rule in [Sharing a mainline](#sharing-a-mainline):
+fixed in place and declared, or filed and left alone — never both, and never quietly.
 
 ## Sharing a mainline
 
 The mainline moves while a change is being made. Three rules keep the two from corrupting each
 other:
 
-- **A pre-existing failure is not yours to fix here.** A failure that demonstrably reproduces on
-  the base commit, without your changes, is filed so the breakage is recorded — and left alone.
-  Carrying someone else's fix inside this change is the passenger rule's permanent conflict,
-  introduced knowingly.
+- **A pre-existing failure is fixed in place or filed — never ignored, and never both.** A
+  failure that reproduces on the base commit, without your changes, still has to be routed.
+  A small, clearly-right repair rides along with this change, **named in it** so the reviewer
+  sees a deliberate passenger — every filed item carries the fixed cost of a whole resolution,
+  and filing every one-line breakage buys process with nothing. Anything larger, riskier, or
+  plausibly already being fixed by someone else is filed so the breakage is recorded — and left
+  alone. Doing both is how one repair gets spelled twice.
 - **A duplicate fix is resolved toward the mainline.** When a conflict exists because the
   mainline already landed the repair this change carries, keeping both sides spells one fix
   twice: take the mainline's version, drop this one, and record what was dropped. Every other
