@@ -108,6 +108,17 @@ Three transitions, each one reviewed change:
   location — and so authority — changes. The label outlives the document: deleting it would
   strip the closed items that record the work.
 
+  **Completion never retires a specification.** A document whose implementation is finished has
+  an empty tag query — its healthiest state, not its end. It stays in the root, where it keeps
+  the next change from quietly undoing the work and gives every future reconciliation pass its
+  measure; retiring it on delivery would turn "implemented" back into "unspecified", the §7 gap
+  it took the work to close. A specification retires only when it stops describing the intended
+  end state: a ratified replacement supersedes it, its subject is removed from the project, or
+  the direction is abandoned — each a decision about the design, never a report that work
+  finished. The one document that *is* delivered is one that was inherently one-shot — a staged
+  migration, a bounded sequence — and it archives when it completes; that is the "delivered" in
+  §1's archive row, and it is the exception, not the pattern.
+
 ## 7. Reconciliation
 
 > **Every gap between a specification and the implementation is covered by an open item carrying
