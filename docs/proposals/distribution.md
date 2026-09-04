@@ -95,10 +95,10 @@ path and the integration gate covers every path.
 
 - The stamp's form — one file naming the tag, or the tag plus per-file hashes so the integration
   gate can name exactly which file diverged without a full diff.
-- Where the CI process runs — this repository's workflows, or the orchestrator as a scheduled
-  fleet task — and the labels its sync and reconciliation items carry.
+- The labels the sync and reconciliation items carry. The machinery itself — the tools, the
+  workflows, and their triggers — is drafted in [sync-automation](sync-automation.md); both live
+  in this repository.
 - The reconciliation pass's shape: one pass item per project per release, or one per amended
-  document; and what the pass receives (the doc diff alone, or the diff plus the release notes
-  naming what changed and why).
+  document.
 - Whether the edit guard's refusal of `docs/org/` ships in the shared guard configuration for
   every project, or each project's own guard seam.
