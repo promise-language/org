@@ -38,7 +38,7 @@ Two narrow uses are sanctioned, and both are outside the tool's outcome:
 > The two prefixes are the same flag: tools normalize the prefix once, then match the name exactly.
 
 `--my-long-flag` and `-my-long-flag` are one flag. `--myLongFlag`, `--my_long_flag`, and
-abbreviations are not flags at all — they are unknown input (§7).
+abbreviations are not flags at all — they are unknown input (§8).
 
 > **A name — a flag's or a subcommand's — is lowercase ASCII letters `a`–`z` and digits `0`–`9`,
 > with `-` as the only separator.** Nothing else: no uppercase, no underscores, no dots, no
@@ -69,7 +69,40 @@ normalize to the same parameter.
 The pair makes the negative visible and greppable. `=false` hides a decision inside a value where
 a reader scanning for the flag's name will misread it.
 
-## 4. General switches do not exist
+## 4. One order
+
+> **The command path comes first, complete and uninterrupted; every flag follows it; every
+> positional argument follows the flags.**
+
+```
+tool <subcommand…> <flags…> <positional args…>
+```
+
+`tool sync -json origin` — never `tool -json sync`, and never `tool sync origin -json`. There is
+no "global flag position": a flag that every command supports, `-json` included, is still written
+after the command path, because it modifies the command being run, and until the path is complete
+there is no such command. Tools where a flag works in one position and silently not in another
+are the standing failure this rule exists to delete — two positions is two spellings of the same
+invocation, and the second one is an alias.
+
+`-help` and `-version` obey the same rule: `tool -help` is the root command's help — the full
+surface, per §7 — and `tool sync -help` is `sync`'s.
+
+> **A flag appearing after the first positional argument is an error, never a positional.** A
+> parser that stops at the first non-flag and hands the rest through untouched has silently
+> reinterpreted the invocation; refusing it is §8's fail-closed rule applied to position.
+
+The operator who typed `tool sync origin -json` wanted JSON output; a tool that instead passes
+`-json` to the backend as a name has done something no one asked, without a word.
+
+> **`--` ends the flags.** Everything after it is positional, verbatim — and a positional that
+> begins with `-` is accepted only after it.
+
+Without the marker, a value like a file named `-report` is indistinguishable from a flag, and
+guessing is worse than either answer. With it, the boundary between flags and arguments is
+explicit exactly where it would otherwise be ambiguous.
+
+## 5. General switches do not exist
 
 > **No flag answers questions the tool has not asked yet.** Blanket switches — `-yes`, `-force`,
 > "assume yes to everything" — are not permitted.
@@ -78,7 +111,7 @@ Every override is named for the one thing it overrides, so consenting to one ris
 to another. A tool that would need `-yes` is a tool that asks questions interactively; it should
 instead refuse with a typed, named condition and the specific flag that overrides it.
 
-## 5. Output: two modes, one rule
+## 6. Output: two modes, one rule
 
 > **Output is human-readable when stdout is a terminal and JSON when it is not.** Every tool
 > supports `-json` and `-human` to force the mode regardless of piping. Passing both is a usage
@@ -92,7 +125,7 @@ That is what makes `tool > out.json` and `tool -json 2>/dev/null` both behave. J
 stable interface: fields are added, never renamed or repurposed, and absent means unknown rather
 than zero.
 
-## 6. `-help` and `-version`
+## 7. `-help` and `-version`
 
 > **Every tool supports `-help`**: it prints the subcommands and, per subcommand, every flag with
 > its type and a one-line description — or simply every flag, when the tool has no subcommands.
@@ -103,7 +136,7 @@ than zero.
 
 A binary that cannot say what it is cannot be the subject of a bug report.
 
-## 7. Unknown input fails closed
+## 8. Unknown input fails closed
 
 > **An unknown flag is an error that names it** — the bad flag, the closest existing flag when one
 > is close, and how to get the supported list (`-help`). Nothing is silently ignored.
@@ -115,14 +148,14 @@ needs. The pointer to `-help` is the list, one step away.
 > written nothing, and contacted nothing.
 
 The same rule covers unknown subcommands, missing required parameters, values failing their type,
-and contradictory parameters. Validation is exhaustive: every problem with the invocation is
-reported, not just the first.
+misplaced flags (§4), and contradictory parameters. Validation is exhaustive: every problem with
+the invocation is reported, not just the first.
 
-## 8. `--file`: the whole invocation, from a file
+## 9. `--file`: the whole invocation, from a file
 
 > **`--file /path/to/args.json` supplies parameters from a JSON file whose schema maps exactly to
 > the tool's flags**, plus `"args"`, an array carrying the non-flag arguments. An unknown key in
-> the file is an unknown flag (§7).
+> the file is an unknown flag (§8).
 
 The file is a transport for the same closed parameter set, not a second configuration system: no
 key exists in the file that does not exist as a flag.
@@ -130,7 +163,7 @@ key exists in the file that does not exist as a flag.
 > **A parameter set both in the file and on the command line is a usage error.** There is no
 > precedence between the two, because precedence is a fallback (§3).
 
-## 9. Subcommands
+## 10. Subcommands
 
 > **The command set is closed in both directions**: no command is added outside the tool's
 > definition, and no command answers to a name not in the set. Each command has exactly one name.
@@ -138,7 +171,7 @@ key exists in the file that does not exist as a flag.
 > **Addressing is exact.** An identifier the user types resolves to exactly what it names, never to
 > something that merely contains or resembles it.
 
-## 10. Exit codes
+## 11. Exit codes
 
 > **`0` — did what was asked**, including when there was nothing to do. An empty result is not an
 > error. **`1` — could not complete**, or stopped on a condition a human must clear. **`2` — the
