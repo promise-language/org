@@ -135,6 +135,21 @@ never an edit to the document — and an item may not be closed while its gap re
 org corpus is amended, this same pass runs in every project against the delta, driven by the
 doc-sync process.
 
+> **An issue about a document is filed where the document originates.** A defect in a rule, a
+> change request, an amendment proposal — these go to the repository the document's first lines
+> name as its home, never to a project holding a copy.
+
+Documents live in many repositories; their meaning must not. What a project files locally under
+a document's tag is only its **own** gaps against it — the compliance work its tree owes. So a
+shared document's tag names two different queries in two places, and both are complete: in the
+home repository, the remaining work on the *definition*; in each project, that project's
+remaining work toward it. An issue filed in the wrong place is invisible to the query that
+should have listed it — the same defect as a fact with two homes. The vendored copies make the
+wrong place the *natural* place: a reader meets the document in the project's tree and files
+where they stand. Such an issue is transferred to the home repository, not worked where it
+landed — and the document's opening home line is what tells both the reader and the transferrer
+where that is.
+
 ## 8. What is enforced mechanically
 
 - Every relative link in every tracked Markdown file resolves to a tracked file.
