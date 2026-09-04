@@ -85,8 +85,9 @@ shadow the real path all fail it. When a second way is found, one of the two is 
 
 A `TODO` is a backlog entry filed somewhere with no backlog semantics: nothing lists them, nothing
 ranks them, nothing closes them, and nobody ever sweeps them. Stale `TODO`s train every reader to
-skip all of them, which destroys the few that meant something. **The tracker is the single source
-of truth for undone work**; a comment may *reference* an issue, and must never *be* the record.
+skip all of them, which destroys the few that meant something. **The project's issue tracking
+system is the single source of truth for undone work** — whichever system the project uses; a
+comment may *reference* an issue, and must never *be* the record.
 
 > **No plans, phases, or task lists in documentation either. A document defines the destination; it
 > never reports the distance travelled.**
