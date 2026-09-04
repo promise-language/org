@@ -41,20 +41,18 @@ done yet is an issue carrying the document's label.
 
 ## Specifications
 
-**None yet.** Nothing has been ratified: the corpus below is drafted and under discussion, and a
-document promoted before that discussion ends would bind eight projects to a shape nobody agreed
-to.
+- [engineering-guide.md](engineering-guide.md) — How code in this organization is written, in
+  any language.
+- [engineering-guide-promise.md](engineering-guide-promise.md) — The engineering guide applied
+  to Promise source.
+- [engineering-guide-go.md](engineering-guide-go.md) — The engineering guide applied to Go
+  source.
+- [cli-guide.md](cli-guide.md) — How every command-line tool behaves at its invocation surface.
 
 ## Proposals — not binding
 
-- [proposals/engineering-guide.md](proposals/engineering-guide.md) — How code in this
-  organization is written, in any language.
-- [proposals/engineering-guide-promise.md](proposals/engineering-guide-promise.md) — The
-  engineering guide applied to Promise source.
-- [proposals/engineering-guide-go.md](proposals/engineering-guide-go.md) — The engineering guide
-  applied to Go source.
-- [proposals/cli-guide.md](proposals/cli-guide.md) — How every command-line tool behaves at its
-  invocation surface.
+- [proposals/normative.md](proposals/normative.md) — What makes a document in a managed project
+  binding, and the one docs structure every project holds.
 - [proposals/anchoring.md](proposals/anchoring.md) — Aspects whose modification requires a
   person's approval, and the path an approval travels.
 - [proposals/distribution.md](proposals/distribution.md) — How a ratified document reaches every
