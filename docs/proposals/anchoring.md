@@ -1,5 +1,9 @@
 # Anchoring
 
+> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document is
+> distributed into each managed project as `docs/org/`. A copy is never edited in place: to
+> change it, file an issue against `org`.
+
 **Proposal. Not normative.** The org-level successor to flow's
 [`docs/proposals/anchoring.md`](https://github.com/promise-language/flow/blob/main/docs/proposals/anchoring.md)
 sketch, widened to the whole fleet. Nothing described here exists yet, anywhere.

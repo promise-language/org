@@ -28,6 +28,14 @@ what a working tree holds.
 Alongside the documents, `docs/org/` carries a version stamp naming the org tag the copies came
 from. The stamp is a claim, not a proof — what makes it honest is the check below.
 
+> **Every document in the vendored set opens with its home line** — directly under the title,
+> naming this repository as the original and the issue against `org` as the way to change it.
+
+A reader of a project's copy is the reader that line exists for, and it must reach them through
+the copies being byte-identical — so it is written **in the source**, worded to be true wherever
+the file sits, never injected per copy by the sync tool. An injected banner would be content
+nobody reviewed here, and the one thing the gate could no longer compare exactly.
+
 ## Updating the copy is an act, and CI is the actor
 
 > **The vendored copy changes only by a commit that rides the project's normal gates.** A

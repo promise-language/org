@@ -1,5 +1,9 @@
 # Engineering Guide — Go
 
+> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document is
+> distributed into each managed project as `docs/org/`. A copy is never edited in place: to
+> change it, file an issue against `org`.
+
 The [engineering guide](engineering-guide.md) applied to Go source. Nothing here contradicts it;
 everything here is Go-specific form. Go has no org abbreviation dictionary; the standard library's
 own names (`Len`, `Dir`, `Env`) are the vocabulary.

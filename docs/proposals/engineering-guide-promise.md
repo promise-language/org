@@ -1,5 +1,9 @@
 # Engineering Guide — Promise
 
+> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document is
+> distributed into each managed project as `docs/org/`. A copy is never edited in place: to
+> change it, file an issue against `org`.
+
 The [engineering guide](engineering-guide.md) applied to Promise source (`.pr` files). Nothing here
 contradicts it; everything here is Promise-specific form. The abbreviation dictionary this language
 uses is §9.3a of Promise's

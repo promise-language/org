@@ -1,5 +1,9 @@
 # Engineering Guide
 
+> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document is
+> distributed into each managed project as `docs/org/`. A copy is never edited in place: to
+> change it, file an issue against `org`.
+
 How code in this organization is written, in any language — naming, shape, testing, visibility,
 effects, and what to do when the platform is in the way. The language-specific form of these rules
 lives in the per-language guides — [`engineering-guide-promise.md`](engineering-guide-promise.md),

@@ -1,5 +1,9 @@
 # CLI Tools
 
+> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document is
+> distributed into each managed project as `docs/org/`. A copy is never edited in place: to
+> change it, file an issue against `org`.
+
 How every command-line tool in the organization behaves at its invocation surface: how it takes
 parameters, how it reports, and how it refuses. A rule stated as a blockquote is an invariant, and
 the prose under it is why.
