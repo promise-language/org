@@ -41,6 +41,8 @@ done yet is an issue carrying the document's label.
 
 ## Specifications
 
+- [normative.md](normative.md) — What makes a document in a managed project binding, and the one
+  docs structure every project holds.
 - [engineering-guide.md](engineering-guide.md) — How code in this organization is written, in
   any language.
 - [engineering-guide-promise.md](engineering-guide-promise.md) — The engineering guide applied
@@ -51,8 +53,6 @@ done yet is an issue carrying the document's label.
 
 ## Proposals — not binding
 
-- [proposals/normative.md](proposals/normative.md) — What makes a document in a managed project
-  binding, and the one docs structure every project holds.
 - [proposals/anchoring.md](proposals/anchoring.md) — Aspects whose modification requires a
   person's approval, and the path an approval travels.
 - [proposals/distribution.md](proposals/distribution.md) — How a ratified document reaches every

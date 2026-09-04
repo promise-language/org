@@ -1,5 +1,8 @@
 # Normative Documents
 
+> **Tag:** `normative` — remaining work to complete this document: the query named in
+> `docs/index.md`.
+
 > **Home:** [promise-language/org](https://github.com/promise-language/org) — this document is
 > distributed into each managed project as `docs/org/`. A copy is never edited in place: to
 > change it, file an issue against `org`.
