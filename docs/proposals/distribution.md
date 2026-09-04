@@ -8,11 +8,22 @@ tree — a rule that lives in another repo is not in an agent's context at the m
 followed. This document is about the machinery behind that sentence: where the copy comes from,
 how it changes, and how a wrong copy is caught.
 
-The vendored set is more than the guides. **The legal files ride the same loop** — `LICENSE`
-(worded without a repo name so the bytes are identical everywhere), `LICENSE-APACHE`,
-`LICENSE-MIT` with the one org-wide holder line, and the shared sections of `CONTRIBUTING.md`
-(CLA, licensing of contributions, commit identity) — because a fleet whose license texts drift
-per repo has several licenses where it means to have one.
+## The vendored set
+
+The corpus is more than the guides, and not all of it sits under `docs/org/` — some members are
+effective only at the conventional path other tooling reads:
+
+| Member | Lands at | Form |
+|---|---|---|
+| The ratified documents | `docs/org/` | Byte-identical |
+| `LICENSE`, `LICENSE-APACHE`, `LICENSE-MIT` | the repository root | Byte-identical — the pointer is worded without a repo name, and the MIT holder line is the one org-wide holder |
+| The CLA workflow | `.github/workflows/cla.yml` | Byte-identical, including its skip-on-private guard |
+| The shared `CONTRIBUTING.md` sections — CLA, licensing of contributions, commit identity | inside the project's own `CONTRIBUTING.md` | The one member that is not a whole file; see open questions |
+
+One rule covers them all: **a fleet whose copies of a legal text or a policy check drift per
+repository has several policies where it means to have one.** The stamp names every vendored
+file wherever it lands, the edit guard refuses every byte-identical path, and the integration
+gate verifies each against the claimed release.
 
 ## The copies are ordinary committed files
 
@@ -26,7 +37,8 @@ clone is complete. Nothing updates under a working tree, because nothing but a c
 what a working tree holds.
 
 Alongside the documents, `docs/org/` carries a version stamp naming the org tag the copies came
-from. The stamp is a claim, not a proof — what makes it honest is the check below.
+from and listing every vendored file wherever it lands — the members outside `docs/org/`
+included. The stamp is a claim, not a proof — what makes it honest is the check below.
 
 > **Every document in the vendored set opens with its home line** — directly under the title,
 > naming this repository as the original and the issue against `org` as the way to change it.
@@ -69,14 +81,14 @@ hermetic is each project's commit gate.
 
 Two positions, each doing what it is good at:
 
-- **A guard, at the edit.** An agent proposing to modify anything under `docs/org/` is refused
-  before it happens, and the refusal carries the whole recovery: *this content comes from `org`;
-  to change it, file an issue against `org`*. The blocked edit is not lost work — its substance
-  becomes the issue's body. Cheap and immediate — and it fails open, which is why it is not the
-  only check.
-- **A gate, at integration.** Where the network is already legitimate, the gate compares
-  `docs/org/` against the org tag the stamp claims. A copy that does not match its claimed tag —
-  however the edit happened — is **divergence**, and the change is refused.
+- **A guard, at the edit.** An agent proposing to modify any vendored path — `docs/org/`, the
+  legal files, the CLA workflow — is refused before it happens, and the refusal carries the
+  whole recovery: *this content comes from `org`; to change it, file an issue against `org`*.
+  The blocked edit is not lost work — its substance becomes the issue's body. Cheap and
+  immediate — and it fails open, which is why it is not the only check.
+- **A gate, at integration.** Where the network is already legitimate, the gate compares every
+  vendored file against the org tag the stamp claims. A copy that does not match its claimed
+  tag — however the edit happened — is **divergence**, and the change is refused.
 
 **Staleness is never a failure.** A copy that faithfully matches an *older* tag is behind, not
 wrong: being behind is the open sync item's job, and blocking every commit in every project the
@@ -108,5 +120,8 @@ path and the integration gate covers every path.
   in this repository.
 - The reconciliation pass's shape: one pass item per project per release, or one per amended
   document.
-- Whether the edit guard's refusal of `docs/org/` ships in the shared guard configuration for
-  every project, or each project's own guard seam.
+- Whether the edit guard's refusal of the vendored paths ships in the shared guard
+  configuration for every project, or each project's own guard seam.
+- How the shared `CONTRIBUTING.md` sections are checked, given they share a file with content
+  the project owns — a marked region the gate compares, or a `CONTRIBUTING.md` split so the
+  shared part is its own vendored file the project's file includes by link.
