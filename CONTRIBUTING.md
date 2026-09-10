@@ -31,10 +31,14 @@ uncertain provenance, or excerpts whose license does not permit this dual licens
 
 ## How to contribute
 
-1. Open an issue first. A change to a document here changes what "correct" means in every
-   managed project, so the discussion belongs ahead of the diff.
-2. Read [docs/index.md](docs/index.md) — the corpus's own conventions govern changes to it:
-   location decides binding, specifications carry no status, one fact has one home.
+1. Open an issue first, carrying the document's tag and what
+   [docs/normative.md](docs/normative.md) §7 asks of an item: the rule quoted, what fails under
+   it, and the replacement text or the request for one. A change to a document here changes
+   what "correct" means in every managed project, so the discussion belongs ahead of the diff —
+   and issues are resolved together, in the amendment pass, not one at a time
+   ([docs/proposals/release-cycle.md](docs/proposals/release-cycle.md)).
+2. Read [docs/normative.md](docs/normative.md) — the corpus's own conventions govern changes to
+   it: location decides binding, specifications carry no status, one fact has one home.
 3. A gap between a document and reality is an issue carrying the document's tag — here for
    defects in the rule, in the affected project for defects in its compliance.
 4. Open a pull request and sign the CLA when prompted.

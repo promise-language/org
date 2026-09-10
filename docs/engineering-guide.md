@@ -21,9 +21,12 @@ lives in another repo is not in the agent's context at the moment it has to be f
 referencing it is the same as not having it.
 
 **So every repository holds a copy, byte-identical to the source, and machinery keeps it that
-way.** The copy is provisioned and hash-checked, never hand-synced: a local edit fails the commit
-and points at the source repository, which is where a rule changes. What is true only of one
-project lives in that project's own documents, which cite this one — never in edits to the copy.
+way.** The copy is tracked content that arrives by sync and is never hand-edited: an edit to it
+is refused, and the refusal points at the home repository, which is where a rule changes. The
+rules of the copy — where it sits, how it is listed, how a gap against it is filed — are
+[normative.md](normative.md)'s, and this guide relies on them without restating them. What is
+true only of one project lives in that project's own documents, which cite this one — never in
+edits to the copy.
 
 ## One obvious way
 
@@ -39,14 +42,57 @@ shadow the real path all fail it. When a second way is found, one of the two is 
 ## Naming
 
 - **Full English words.** `print_line`, not `println`. `execute`, not `exec`.
-- **Where a language guide carries an approved abbreviation dictionary, its abbreviations are
+- **The abbreviation dictionary below is the closed list of exceptions, and its entries are
   mandatory.** Where a mapping exists, the abbreviation is the correct form, not a tolerated one;
-  where none exists, the full word is.
+  where none exists, the full word is. It applies in every language and on every surface a name
+  appears — code, flags, wire fields.
 - **Proper names are verbatim.** Technologies, formats, and algorithms keep their own spelling —
   `base64`, `utf8`, `json`, `sha256`, `url` — with only the casing following the language's
   convention.
 - **Do not prefix a member with its type.** `response.status`, not `response.status_code`. The
   caller already has the context.
+
+**The abbreviation dictionary.** A reader can always expand a full word but must have memorized
+each abbreviation, so an entry earns its place only when the short form is so universally
+recognized that it reads *better* than the word — `repo` is what `git` and `gh` call it; nobody
+says *identifier*. An entry covers its plural (`args`, `repos`). The list grows by an issue
+against this document, one word at a time, and it is not a licence: a word that is not in it is
+spelled in full, however common its clipping. Two extensions are sanctioned, and neither removes
+an entry. A language guide may add mappings particular to that language. And a project that ships
+a **released product** — a language and its standard library, a published module set — may add
+mappings for that product's public surface, in the project's own specification of that surface:
+the names a public reader meets are governed by a table the product's authors own and its users
+can read, not by one written for the organization's tooling. Everywhere else — this repository,
+every project's `bin/`, every internal surface — the table above and the language guide's
+additions are the whole list.
+
+| Abbreviation | Word |
+|---|---|
+| `abs` | absolute |
+| `arg` | argument |
+| `attr` | attribute |
+| `config` | configuration |
+| `dest` | destination |
+| `dir` | directory |
+| `env` | environment |
+| `func` | function |
+| `hex` | hexadecimal |
+| `id` | identifier |
+| `info` | information |
+| `init` | initialize |
+| `len` | length |
+| `max` | maximum |
+| `millis` | milliseconds |
+| `min` | minimum |
+| `pos` | position |
+| `prev` | previous |
+| `repo` | repository |
+| `src` | source |
+| `stderr` | standard error |
+| `stdin` | standard input |
+| `stdout` | standard output |
+| `sync` | synchronize |
+| `var` | variable |
 
 ## Types and shape
 
@@ -222,6 +268,28 @@ A sleep standing in for a happens-before edge is load-sensitive: the window that
 laptop collapses on a loaded runner, and no amount of lengthening fixes it. This is not a ban on
 testing timing *behaviour*; it is a ban on using a clock where a signal belongs.
 
+## Everything a program writes has a ceiling
+
+> **A sink that only grows is a leak with a slower clock.** A log, a journal, a spool, a cache, a
+> retained buffer, a table of past runs — anything appended to across a process's life is
+> declared with a bound where it is created, the way a timeout is a named parameter declared at
+> one boundary.
+
+"It is only a log" is the reasoning that produces a gigabyte of one repeated line. The damage is
+not the disk. An unbounded sink is why a malfunction runs unnoticed: the process that
+malfunctions is the one that writes fastest, and past a certain size the evidence is a file
+nobody opens — the pathology funds its own concealment.
+
+- **The bound belongs to the writer** — not to an operator's cron job, and not to a reader that
+  trims on the way in. A sink is unbounded until the thing appending to it says otherwise.
+- **Cap by rotating and keeping segments, never by truncating to the tail.** What is worth
+  reading in a log is usually when a condition *started*, and a cap that keeps only the most
+  recent bytes discards exactly that.
+- **For a slow-onset condition the origin is worth as much as the tail.** Rotation that drops the
+  oldest segment first still loses the line that dates the whole thing; where the first record
+  matters, the bound keeps the first segment alongside the last ones. A bound that destroys the
+  diagnosis is not a bound worth having.
+
 ## Look for the silent classes
 
 Correctness bugs announce themselves. These do not, so they are a standing obligation in **any code
@@ -233,6 +301,7 @@ a change touches** — not only in the lines it adds:
 | **Lifetime errors** | double free, use after free, missing scope cleanup |
 | **Concurrency races** | lock ordering, park/wake, channel close |
 | **Resource waste** | handles, connections, and processes opened and never accounted for |
+| **Unbounded sinks** | a log, journal, or cache with no ceiling — [everything a program writes has a ceiling](#everything-a-program-writes-has-a-ceiling) |
 
 **Anything found here is filed at critical priority**, whether or not the current change caused it.
 These are the classes that survive review, pass tests, and surface in production as something

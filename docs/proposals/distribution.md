@@ -1,7 +1,14 @@
 # Distribution
 
-**Proposal. Not normative.** How a document ratified in this repository reaches every managed
-project, and what keeps the copies honest.
+> **Proposal.** Not normative: an end state under discussion, binding nothing until ratified.
+
+> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document is
+> distributed into each managed project as `docs/org/`. A copy is never edited in place: to
+> change it, file an issue against `org`.
+
+How a document ratified in this repository reaches every managed project, and what keeps the
+copies honest. The process around this machinery — intake, the amendment pass, the release — is
+[release-cycle](release-cycle.md)'s; the tools and CI that run it are [doc-sync](doc-sync.md)'s.
 
 A specification ratified here binds every project, and each project carries a copy in its own
 tree — a rule that lives in another repo is not in an agent's context at the moment it has to be
@@ -15,7 +22,7 @@ effective only at the conventional path other tooling reads:
 
 | Member | Lands at | Form |
 |---|---|---|
-| The ratified documents | `docs/org/` | Byte-identical |
+| Every specification in the root — `docs/index.md` is the project's own map, not a member | `docs/org/` | Byte-identical |
 | `LICENSE`, `LICENSE-APACHE`, `LICENSE-MIT` | the repository root | Byte-identical — the pointer is worded without a repo name, and the MIT holder line is the one org-wide holder |
 | The CLA workflow | `.github/workflows/cla.yml` | Byte-identical, including its skip-on-private guard |
 | The shared `CONTRIBUTING.md` sections — CLA, licensing of contributions, commit identity | inside the project's own `CONTRIBUTING.md` | The one member that is not a whole file; see open questions |
@@ -24,6 +31,11 @@ One rule covers them all: **a fleet whose copies of a legal text or a policy che
 repository has several policies where it means to have one.** The stamp names every vendored
 file wherever it lands, the edit guard refuses every byte-identical path, and the integration
 gate verifies each against the claimed release.
+
+> **A vendored document's relative links resolve inside the vendored set.** normative.md §8
+> checks every link in every tree, so a copy's link to a file the set does not carry fails in
+> every project that holds it — a proposal, the index, a research note may be cited by name, never
+> by relative link.
 
 ## The copies are ordinary committed files
 
@@ -38,10 +50,13 @@ what a working tree holds.
 
 Alongside the documents, `docs/org/` carries a version stamp naming the org tag the copies came
 from and listing every vendored file wherever it lands — the members outside `docs/org/`
-included. The stamp is a claim, not a proof — what makes it honest is the check below.
+included. The stamp is a claim, not a proof — what makes it honest is the check below. The
+project's `docs/index.md` lists `docs/org/` once, by way of that stamp (normative.md §1), so a
+sync adds and removes members without touching a file the project owns.
 
-> **Every document in the vendored set opens with its home line** — directly under the title,
-> naming this repository as the original and the issue against `org` as the way to change it.
+> **Every document in the vendored set carries its home line** — in its header, after the tag
+> line (normative.md §2) — naming this repository as the original and the issue against `org` as
+> the way to change it.
 
 A reader of a project's copy is the reader that line exists for, and it must reach them through
 the copies being byte-identical — so it is written **in the source**, worded to be true wherever
@@ -65,8 +80,10 @@ things:
   any amendment, run per project: walk the delta between the old and new rules against the
   project, and file an item for every gap found — code the new rule now forbids, tools the new
   contract now binds, project docs the change now contradicts — each carrying the amended
-  document's tag. The CI files the pass itself as an item per project; expanding it into the
-  concrete gaps is judgment work, and the project's ordinary resolution flow is what performs it.
+  document's tag. The pass itself is filed as one item per project, carrying the release notes
+  and every amended document's tag, when a person triggers it for the release (doc-sync);
+  expanding it into the concrete gaps is judgment work, and the project's ordinary resolution
+  flow is what performs it.
 
 The two outputs are deliberately separate: the sync change is never blocked on the
 reconciliation, because a tree holding the new rules with open gap items is the convention's
@@ -115,9 +132,8 @@ path and the integration gate covers every path.
 
 - The stamp's form — one file naming the tag, or the tag plus per-file hashes so the integration
   gate can name exactly which file diverged without a full diff.
-- The labels the sync and reconciliation items carry. The machinery itself — the tools, the
-  workflows, and their triggers — is drafted in [doc-sync](doc-sync.md); both live
-  in this repository.
+- The label the sync change carries. The reconciliation items carry the amended documents' tags
+  (normative.md §7), and the pass item carries all of them.
 - The reconciliation pass's shape: one pass item per project per release, or one per amended
   document.
 - Whether the edit guard's refusal of the vendored paths ships in the shared guard

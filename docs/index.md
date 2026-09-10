@@ -1,43 +1,21 @@
 # Documentation Index
 
-This is the map of `docs/`. It is the one file in the root that is not a specification —
-everything else there is.
+The map of `docs/`. The rules this tree is written under — which locations bind, the header
+every document opens with, where status lives and where it never does, one fact one home, the
+lifecycle, and what is checked mechanically — are [normative.md](normative.md)'s, and this file
+does not restate them. It carries only what that shared document cannot: which project this is,
+and its query.
 
-## How to read this tree
+This repository is the **home of the organization-wide corpus**. Every specification in its root
+binds every managed project and is distributed to each as `docs/org/`; the root here *is* the
+corpus, so there is no `docs/org/`, and a rule changes here and nowhere else. How a change
+arrives here and reaches the fleet is [proposals/release-cycle.md](proposals/release-cycle.md).
 
-| Location | What a file there is | Binding? |
-|----------|----------------------|----------|
-| `docs/` root | A **specification**: what should be — the intended end state. It never records current state, progress, or phasing. | **Yes.** Work that contradicts a root doc must stop and be resolved — amend the doc, adjust the item, or reject it — not shipped as a quiet deviation. |
-| `docs/proposals/` | An end state that has **not been ratified** — a draft, an RFC, a direction still under discussion. | No. Ratifying one means `git mv` into the root and giving it a tag. |
-| `docs/archive/` | An end state that has been **superseded or delivered** — kept for history. | No. |
-| `docs/research/` | Background analysis feeding a decision — an assessment, not a design. | No. |
+**The status query.** Every specification's tag line points here for the query that lists its
+remaining work — in this repository, the remaining work on the *definition*, together with this
+tree's own compliance gaps; in a project's copy, that project's compliance work. The query is:
 
-This repository is the home of the organization-wide corpus: a specification ratified here binds
-**every managed project**, and each project carries a provisioned, hash-checked copy so the rules
-are in an agent's context at the moment they have to be followed. A copy is never edited in place
-— a rule changes here.
-
-**Where progress lives.** A root doc has no status section. Each one declares a **tag** on the
-line under its title, and the gap between the end state and today is the set of open issues
-carrying that label:
-
-> **Tag:** `example` — remaining work to complete this document: `gh issue list --label example --state open --limit 200`
-
-One tag per root document, spelled exactly as the file's basename minus `.md`. The enumeration is
-the directory — `ls docs/*.md` — and this file deliberately does not copy it. Files under
-`proposals/`, `archive/`, and `research/` take no tag. A project-local gap against a shared
-document is filed in that project under the same label; a gap in the document itself is filed
-here.
-
-**Ratifying a proposal is four steps**: `gh label create <tag>`; `git mv
-docs/proposals/<tag>.md docs/<tag>.md`; add the tag line under the title; move its entry in this
-file into Specifications. The last three are one commit.
-
-**Conventions in a root doc.** A rule stated as a blockquote is an invariant, and the prose under
-it is why. An **Open questions** section is for undecided *design* only — work that is merely not
-done yet is an issue carrying the document's label.
-
----
+> `gh issue list --label <tag> --state open --limit 200`
 
 ## Specifications
 
@@ -57,5 +35,8 @@ done yet is an issue carrying the document's label.
   person's approval, and the path an approval travels.
 - [proposals/distribution.md](proposals/distribution.md) — How a ratified document reaches every
   managed project, and what keeps the copies honest.
-- [proposals/doc-sync.md](proposals/doc-sync.md) — The org tools and org CI that
-  drive the distribution loop, and what may run unattended.
+- [proposals/doc-sync.md](proposals/doc-sync.md) — The org tools and org CI that drive the
+  distribution loop, and what may run unattended.
+- [proposals/release-cycle.md](proposals/release-cycle.md) — How the corpus changes and how a
+  change reaches the fleet: intake, the amendment pass, the release, and the reconciliation that
+  follows.

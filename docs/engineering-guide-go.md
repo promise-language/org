@@ -8,8 +8,9 @@
 > change it, file an issue against `org`.
 
 The [engineering guide](engineering-guide.md) applied to Go source. Nothing here contradicts it;
-everything here is Go-specific form. Go has no org abbreviation dictionary; the standard library's
-own names (`Len`, `Dir`, `Env`) are the vocabulary.
+everything here is Go-specific form. Go adds nothing to the guide's abbreviation dictionary; a
+name the standard library already uses is the platform's spelling and, like any proper name, is
+used verbatim.
 
 ## Shape
 

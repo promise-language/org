@@ -5,11 +5,15 @@ them: the engineering guides, the CLI guide, the documentation conventions, and 
 mechanisms such as anchoring. What is specific to one project lives in that project; what is
 specific to the BASE model lives in `base`; what is written here binds the whole fleet.
 
-Start at [docs/index.md](docs/index.md) — the map of the corpus and the rules it is written under.
+Start at [docs/index.md](docs/index.md), the map of the corpus;
+[docs/normative.md](docs/normative.md) is the rules it is written under.
 
-A specification ratified here reaches each project as a provisioned, hash-checked copy in that
-project's own tree, so the rules are present in an agent's context at the moment they have to be
-followed, and a local edit of a copy fails the commit and points back here.
+A specification ratified here reaches each project as a byte-identical copy in that project's
+own tree, `docs/org/`, so the rules are present in an agent's context at the moment they have to
+be followed. A copy is never edited: an edit is refused and points back here, and every copy is
+checked against the release it claims. A rule changes here — by an issue, resolved in the next
+amendment pass and released to the fleet
+([docs/proposals/release-cycle.md](docs/proposals/release-cycle.md)).
 
 ## Dev tooling
 

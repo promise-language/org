@@ -1,12 +1,14 @@
 # Anchoring
 
+> **Proposal.** Not normative: an end state under discussion, binding nothing until ratified.
+
 > **Home:** [promise-language/org](https://github.com/promise-language/org) — this document is
 > distributed into each managed project as `docs/org/`. A copy is never edited in place: to
 > change it, file an issue against `org`.
 
-**Proposal. Not normative.** The org-level successor to flow's
+The org-level successor to flow's
 [`docs/proposals/anchoring.md`](https://github.com/promise-language/flow/blob/main/docs/proposals/anchoring.md)
-sketch, widened to the whole fleet. Nothing described here exists yet, anywhere.
+sketch, widened to the whole fleet.
 
 Some parts of a project are not ordinary content. Changing them changes what "correct" means for
 every change that follows — and an agent resolving an item can change them as easily as it changes
@@ -90,8 +92,8 @@ fifteen-hundred-line diff means answering it badly.
 > **A person approves; nothing else does.** The party proposing a change to an anchor is exactly
 > the party that must not be able to authorise it.
 
-The request travels one path: the resolving flow emits it, the orchestrator — tracker today,
-reactor eventually — routes it, and it lands in the **engagement feed of the person who owns the
+The request travels one path: the resolving flow emits it, the orchestrator — tracker, or
+reactor — routes it, and it lands in the **engagement feed of the person who owns the
 decision**. The feed is central to the platform and **per user**: every project talks to one feed
 per person, so an approval looks the same whichever project it came from, and a person's pending
 decisions are one list rather than eight. **grid hosts the feed** — a web server where each person

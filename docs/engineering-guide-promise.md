@@ -8,8 +8,9 @@
 > change it, file an issue against `org`.
 
 The [engineering guide](engineering-guide.md) applied to Promise source (`.pr` files). Nothing here
-contradicts it; everything here is Promise-specific form. The abbreviation dictionary this language
-uses is §9.3a of Promise's
+contradicts it; everything here is Promise-specific form. Promise's additions to the guide's
+abbreviation dictionary — `ch` for *character*, and what its released standard library adds under
+the guide's released-product carve-out — live in §9.3a of Promise's
 [`docs/language-design.md`](https://github.com/promise-language/promise/blob/main/docs/language-design.md).
 
 ## Fields, getters, and construction
