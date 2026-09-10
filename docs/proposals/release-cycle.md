@@ -12,7 +12,7 @@ an issue filed against a rule to the reconciliation items every project receives
 owns the tools and CI; this document owns the process they serve — who acts, on what, in what
 order — so that a cycle run by hand and a cycle run by machine are the same cycle.
 
-## 1. The loop
+## The loop
 
 Five steps in one direction, each with one actor and one product:
 
@@ -27,13 +27,13 @@ Five steps in one direction, each with one actor and one product:
 Nothing in the loop pushes to a project. A project receives proposals — a change riding its
 gates, an item in its queue — and its own process does the rest.
 
-## 2. Intake
+## Intake
 
-An issue about a document is filed in this repository, carries the document's tag, and carries
-what normative.md §7 requires of any item: the rule quoted, what fails under it, and the
-replacement text or the request for one. A reader who meets the document in a project's tree and
-files there has filed in the natural wrong place; the issue is transferred here, not worked where
-it landed.
+An issue about a document is filed in this repository, carries the document's tag, and carries what
+[reconciliation](../normative.md#reconciliation) requires of any item: the rule quoted, what fails
+under it, and the replacement text or the request for one. A reader who meets the document in a
+project's tree and files there has filed in the natural wrong place; the issue is transferred here,
+not worked where it landed.
 
 > **An issue is not worked alone.** It waits for the amendment pass, where it is read beside every
 > other open item on the same document.
@@ -48,7 +48,7 @@ Triage is continuous and mechanical: an unlabelled issue gets its document's tag
 closed against the item it duplicates; an issue against a proposal is worked into the proposal
 directly, since a proposal is freely rewritten and has no tag to wait under.
 
-## 3. The amendment pass
+## The amendment pass
 
 > **The pass reads every open item on every document, and the documents themselves, and lands
 > one reviewed change.** Items are restructured before they are resolved — fewer, larger items,
@@ -61,18 +61,19 @@ In order:
 2. **Resolve each document's items together** into amendments. An item is incorporated, merged
    into another, or closed with the reason. The wording an item proposes is a starting point,
    never a constraint; what it says must survive is.
-3. **Amend**, in one change under review, every document the pass touched — normative.md §6's
-   amendment, landing before any release that carries it.
+3. **Amend**, in one change under review, every document the pass touched — the
+   [lifecycle](../normative.md#lifecycle)'s amendment, landing before any release that carries it.
 4. **Close what the change incorporates**, each closing comment naming the section that now
    carries the decision, so the item's reader can check the claim in a minute.
-5. **Reconcile this repository** against the amended corpus (normative.md §7). Its own tree,
+5. **Reconcile this repository** against the amended corpus
+   ([reconciliation](../normative.md#reconciliation)). Its own tree,
    tools, and proposals are held to the rules like any project's, and its gaps are items here
    under each document's tag.
 
 A pass that finds nothing to amend is a legitimate result: it closes or keeps its items with the
 reason, and cuts no release.
 
-## 4. The release
+## The release
 
 > **A tag push is a release, nothing else is** (distribution). The tag is `docs-<year>.<n>`, with
 > `n` counting the year's releases from 1, and it names the commit the copies are taken from.
@@ -87,7 +88,7 @@ A release is cut once the pass has landed and this repository's own reconciliati
 filed. Nothing else is a precondition: a release with open items here is the normal state,
 exactly as a project with open gap items is.
 
-## 5. Dissemination
+## Dissemination
 
 Distribution and doc-sync own the machinery. The process is that the sync is automatic and the
 reconciliation is asked for:
@@ -103,7 +104,7 @@ A step run by hand follows the specification of the `bin/fleet` command that per
 — so a hand-run cycle and an automated one produce identical changes and items, and automating a
 step changes who runs it, never what it does.
 
-## 6. Reconciliation in the project
+## Reconciliation in the project
 
 The pass item is the project's own work: read the release notes against the tree; file a gap
 item under each document's tag for every gap found — code the amended rule now forbids, a tool

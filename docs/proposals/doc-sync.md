@@ -30,7 +30,7 @@ One binary, `bin/fleet`, with the closed command set:
 The managed-project list is a committed file in this repository — a closed set, extended by an
 ordinary reviewed change, so "managed" is a fact in one place rather than a convention.
 
-## Triggers: mechanical runs unattended, judgment is asked for
+## Triggers
 
 > **The scheduled path does only mechanical work.** `status` and `sync` run on a schedule and on
 > every release: byte-exact, idempotent, no judgment anywhere in them.

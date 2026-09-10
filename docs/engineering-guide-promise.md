@@ -13,7 +13,7 @@ abbreviation dictionary — `ch` for *character*, and what its released standard
 the guide's released-product carve-out — live in §9.3a of Promise's
 [`docs/language-design.md`](https://github.com/promise-language/promise/blob/main/docs/language-design.md).
 
-## Fields, getters, and construction
+## Fields and construction
 
 - **Private fields are `_`-prefixed; the public getter drops the underscore.** The underscore marks
   an implementation detail and signals that access goes through the getter. A field that is itself

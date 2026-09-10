@@ -32,10 +32,10 @@ repository has several policies where it means to have one.** The stamp names ev
 file wherever it lands, the edit guard refuses every byte-identical path, and the integration
 gate verifies each against the claimed release.
 
-> **A vendored document's relative links resolve inside the vendored set.** normative.md §8
-> checks every link in every tree, so a copy's link to a file the set does not carry fails in
-> every project that holds it — a proposal, the index, a research note may be cited by name, never
-> by relative link.
+> **A vendored document's relative links resolve inside the vendored set.** The [mechanical
+> checks](../normative.md#mechanical-checks) run every link in every tree, so a copy's link to a
+> file the set does not carry fails in every project that holds it — a proposal, the index, a
+> research note may be cited by name, never by relative link.
 
 ## The copies are ordinary committed files
 
@@ -48,22 +48,22 @@ exactly the org docs that commit had; a bisect sees the rules in force at each s
 clone is complete. Nothing updates under a working tree, because nothing but a commit can change
 what a working tree holds.
 
-Alongside the documents, `docs/org/` carries a version stamp naming the org tag the copies came
-from and listing every vendored file wherever it lands — the members outside `docs/org/`
-included. The stamp is a claim, not a proof — what makes it honest is the check below. The
-project's `docs/index.md` lists `docs/org/` once, by way of that stamp (normative.md §1), so a
-sync adds and removes members without touching a file the project owns.
+Alongside the documents, `docs/org/` carries a version stamp naming the org tag the copies came from
+and listing every vendored file wherever it lands — the members outside `docs/org/` included. The
+stamp is a claim, not a proof — what makes it honest is the check below. The project's
+`docs/index.md` lists `docs/org/` once, by way of that stamp ([location](../normative.md#location)),
+so a sync adds and removes members without touching a file the project owns.
 
-> **Every document in the vendored set carries its home line** — in its header, after the tag
-> line (normative.md §2) — naming this repository as the original and the issue against `org` as
-> the way to change it.
+> **Every document in the vendored set carries its home line** — in its
+> [header](../normative.md#header), after the tag line — naming this repository as the original and
+> the issue against `org` as the way to change it.
 
 A reader of a project's copy is the reader that line exists for, and it must reach them through
 the copies being byte-identical — so it is written **in the source**, worded to be true wherever
 the file sits, never injected per copy by the sync tool. An injected banner would be content
 nobody reviewed here, and the one thing the gate could no longer compare exactly.
 
-## Updating the copy is an act, and CI is the actor
+## Updating the copy
 
 > **The vendored copy changes only by a commit that rides the project's normal gates.** A
 > periodic CI process in this repository drives those commits for the whole fleet.
@@ -94,7 +94,7 @@ how much, is a label query, not a spreadsheet.
 The process may use the network freely; it runs where the network is legitimate. What stays
 hermetic is each project's commit gate.
 
-## The check: divergence is refused, staleness is an item
+## The check
 
 Two positions, each doing what it is good at:
 
@@ -133,7 +133,7 @@ path and the integration gate covers every path.
 - The stamp's form — one file naming the tag, or the tag plus per-file hashes so the integration
   gate can name exactly which file diverged without a full diff.
 - The label the sync change carries. The reconciliation items carry the amended documents' tags
-  (normative.md §7), and the pass item carries all of them.
+  ([reconciliation](../normative.md#reconciliation)), and the pass item carries all of them.
 - The reconciliation pass's shape: one pass item per project per release, or one per amended
   document.
 - Whether the edit guard's refusal of the vendored paths ships in the shared guard

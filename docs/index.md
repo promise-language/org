@@ -29,7 +29,7 @@ tree's own compliance gaps; in a project's copy, that project's compliance work.
   source.
 - [cli-guide.md](cli-guide.md) — How every command-line tool behaves at its invocation surface.
 
-## Proposals — not binding
+## Proposals
 
 - [proposals/anchoring.md](proposals/anchoring.md) — Aspects whose modification requires a
   person's approval, and the path an approval travels.

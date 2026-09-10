@@ -12,10 +12,11 @@ keep two of them from ever disagreeing. Every managed project holds the same doc
 structure, so a reader who has learned one tree has learned them all. This document's subject is
 the documents themselves; it is one of them, and every rule below applies to it.
 
-## 1. Location is the whole rule
+## Location
 
 There is no configuration file, and no marker decides what a file is. The directory a file sits
-in determines it, and the header line (§2) only restates what the directory already decided:
+in determines it, and the [header](#header) line only restates what the directory already
+decided:
 
 | Location | What a file there is | Binding? |
 |----------|----------------------|----------|
@@ -35,16 +36,16 @@ tracked file under `docs/` is listed in it, wherever it lives — the section an
 is where its binding status is written down. `docs/org/` is listed once, as the directory, by
 way of the **stamp** it carries: the stamp names the release the copies came from and every
 member, so the corpus's map is the corpus's own, and a sync adds and removes members without
-editing a file the project owns. The index also names the project's status query (§2), which is
-the one per-project fact this shared document cannot carry.
+editing a file the project owns. The index also names the project's status query
+([header](#header)), which is the one per-project fact this shared document cannot carry.
 
-## 2. The header
+## Header
 
 Every Markdown document under `docs/` — the index excepted — opens with its title and, on the
 line beneath it, the header line its location requires. The location decides; the line restates
 the decision for the reader who arrived by a link rather than by the directory, and it is
-checked against the location (§8) so the two cannot drift. One form per location — the root,
-`proposals/`, `archive/`, `research/`, in that order:
+checked against the location ([mechanical checks](#mechanical-checks)) so the two cannot drift.
+One form per location — the root, `proposals/`, `archive/`, `research/`, in that order:
 
 ```markdown
 > **Tag:** `<basename>` — remaining work to complete this document: the query named in `docs/index.md`.
@@ -64,10 +65,31 @@ of it.
 
 A document that is distributed into other repositories also carries, after its tag line, its
 **home line**: the repository it changes in, and how to ask for the change. A copy's reader is
-the reader that line exists for (§7); its exact wording belongs to the home repository's
-distribution rules.
+the reader that line exists for ([reconciliation](#reconciliation)); its exact wording belongs
+to the home repository's distribution rules.
 
-## 3. A specification states the end state
+## Sections
+
+> **A section is addressed by its slug, never by a number.** Headings below the title are
+> unnumbered. A heading is a short name in letters, digits, and spaces, unique within its
+> document, and its slug — the heading lowercased, spaces as dashes — is the section's identity.
+> A reference, in a document, an item, or a comment, is `<file>#<slug>`:
+> `normative.md#reconciliation`.
+
+A number is a position, and a position moves. Inserting a section renumbers everything after it,
+and every reference written against the old numbering still resolves — to the wrong section,
+silently. A slug moves only when its heading is renamed, and then every reference breaks loudly:
+in the tree the link check names each one, and outside it the old slug is a string to search for.
+Renaming a heading is therefore an amendment, and the change that renames it repairs every
+reference in the tree.
+
+The alphabet is closed for the same reason a flag's is: the renderer that makes an anchor strips
+punctuation, so a heading carrying any has a slug a reader cannot predict from the text. With
+letters, digits, and spaces alone, the slug is computable by a reader and by the check alike.
+Inside a document a reference is a link, and its text is the heading or the phrase the sentence
+needs; a bare `#slug` is never shown to a reader as prose.
+
+## End state
 
 **A specification describes what the project should be, never how far along it is.** No status
 sections, no progress notes, no phasing, no "currently", "not yet", or "implemented", and no
@@ -91,7 +113,7 @@ specification:
 **A rule stated as a blockquote is an invariant**, and the prose under it is why. If the rule
 and the reasoning ever disagree, the rule is what the implementation must satisfy.
 
-## 4. One fact, one home — supersession is forbidden
+## One home
 
 **A fact is specified in exactly one document.** Two specifications must never define the same
 thing, and no specification may claim authority over another. *Supersedes*, *takes precedence
@@ -108,27 +130,28 @@ other, and each links to the other once.
 say. And a fact whose home is the org corpus stays there: a project document cites `docs/org/`,
 it does not restate it.
 
-## 5. Cross-reference, do not copy
+## Links
 
 Link to the document that owns a fact. If a passage must be edited whenever its target changes,
 it is a copy however it is worded — a paraphrase and a quotation drift identically. A copy is
 sanctioned only where a machine checks it: the vendored `docs/org/`, byte-identical, verified
-against its stamp, and named as a copy by its own header; and the header line (§2), which
+against its stamp, and named as a copy by its own header; and the [header](#header) line, which
 restates what the directory decided and is checked against it.
 
-## 6. Lifecycle
+## Lifecycle
 
 Three transitions, each one reviewed change:
 
 - **Ratification.** A design begins in `docs/proposals/`, unbound, untagged, freely rewritten —
-  and **written as the specification it would become**. §3's end-state voice, §4's one home per
-  fact, and §5's cross-references all apply to it, because what makes it a proposal is where it
-  sits, not how it is written. Ratifying it is one act: create the label, `git mv` into the
-  root, replace the proposal line with the tag line, move its index entry — the move *is* the
-  decision. The test mirrors §3's: **a proposal reads identically the day before and the day
-  after it is ratified**, but for its location, its header line, and its index entry. A proposal
-  that would need rewriting first is not ready, and a rewrite folded into the ratification is a
-  change nobody can diff against what was proposed.
+  and **written as the specification it would become**. The [end-state](#end-state) voice,
+  [one home](#one-home) per fact, and [links](#links) all apply to it,
+  because what makes it a proposal is where it sits, not how it is written. Ratifying it is one
+  act: create the label, `git mv` into the root, replace the proposal line with the tag line,
+  move its index entry — the move *is* the decision. The test mirrors the end state's: **a
+  proposal reads identically the day before and the day after it is ratified**, but for its
+  location, its header line, its index entry, and the paths of the relative links the move
+  re-rooted. A proposal that would need rewriting first is not ready, and a rewrite folded into
+  the ratification is a change nobody can diff against what was proposed.
 - **Amendment.** An ordinary reviewed diff, landing **before or with** the change that
   implements it, never after: a specification trailing its implementation has stopped describing
   the end state and started reporting history.
@@ -139,15 +162,16 @@ Three transitions, each one reviewed change:
   **Completion never retires a specification.** A document whose implementation is finished has
   an empty tag query — its healthiest state, not its end. It stays in the root, where it keeps
   the next change from quietly undoing the work and gives every future reconciliation pass its
-  measure; retiring it on delivery would turn "implemented" back into "unspecified", the §7 gap
-  it took the work to close. A specification retires only when it stops describing the intended
-  end state: a ratified replacement supersedes it, its subject is removed from the project, or
-  the direction is abandoned — each a decision about the design, never a report that work
-  finished. The one document that *is* delivered is one that was inherently one-shot — a staged
-  migration, a bounded sequence — and it archives when it completes; that is the "delivered" in
-  §1's archive row, and it is the exception, not the pattern.
+  measure; retiring it on delivery would turn "implemented" back into "unspecified", the
+  [reconciliation](#reconciliation) gap it took the work to close. A specification retires only
+  when it stops describing the intended end state: a ratified replacement supersedes it, its
+  subject is removed from the project, or the direction is abandoned — each a decision about the
+  design, never a report that work finished. The one document that *is* delivered is one that
+  was inherently one-shot — a staged migration, a bounded sequence — and it archives when it
+  completes; that is the "delivered" in the [location](#location) table's archive row, and it is
+  the exception, not the pattern.
 
-## 7. Reconciliation
+## Reconciliation
 
 > **Every gap between a specification and the implementation is covered by an open item carrying
 > that document's tag.**
@@ -161,9 +185,10 @@ implementation and file the items that close every gap, as its own change.
 **A gap closes from the side that is wrong, never by moving the other side to meet it.** A
 compliance gap — the implementation short of the rule — closes by changing the implementation,
 and the document stays as written. A definition gap — the rule short of what is intended —
-closes by amending the document (§6). Closing the item records that the gap is gone; an item may
-not be closed while its gap remains. Relaxing a rule to fit what was built, or building to a rule
-known to be wrong, is §1's quiet deviation spelled from the other end.
+closes by amending the document ([lifecycle](#lifecycle)). Closing the item records that the gap
+is gone; an item may not be closed while its gap remains. Relaxing a rule to fit what was built,
+or building to a rule known to be wrong, is the quiet deviation the [location](#location) table
+forbids, spelled from the other end.
 
 **An item carries what a reader needs to check it in a minute**: the rule — the section, quoted,
 not paraphrased — what fails under it, with evidence the reader can confirm, and what would
@@ -190,17 +215,21 @@ home line is what tells both the reader and the transferrer where that is.
 When the corpus is amended, this same pass runs in every project against the delta: the home
 repository's release is what starts it, and each project's tag queries are where it lands.
 
-## 8. What is enforced mechanically
+## Mechanical checks
 
-- Every relative link in every tracked Markdown file resolves to a tracked file — and **a
-  failing link is repaired by fixing the reference, never by removing the link.** Repoint it at
-  the document that now owns the fact, or delete the reference together with the claim it
-  supports. A link turned into plain text leaves the reference exactly as wrong as it was and
-  makes the check report a pass: a repaired reference and a silenced one must never look alike.
-- Every tracked file under `docs/` is listed in `docs/index.md` (§1) — and **a missing index is
-  a failure, not a pass**: nothing to report and nothing was checked must never look alike.
-- The line under every title is the one its location requires (§2), and a tag names the file
-  it sits in.
+- Every relative link in every tracked Markdown file resolves to a tracked file, and a link
+  carrying a fragment resolves to a heading in it — and **a failing link is repaired by fixing
+  the reference, never by removing the link.** Repoint it at the document that now owns the
+  fact, or delete the reference together with the claim it supports. A link turned into plain
+  text leaves the reference exactly as wrong as it was and makes the check report a pass: a
+  repaired reference and a silenced one must never look alike.
+- Every tracked file under `docs/` is listed in `docs/index.md` ([location](#location)) — and
+  **a missing index is a failure, not a pass**: nothing to report and nothing was checked must
+  never look alike.
+- The line under every title is the one its location requires ([header](#header)), and a tag
+  names the file it sits in.
+- Every heading below a title is a name in the closed alphabet, unique in its document
+  ([sections](#sections)).
 - `docs/org/` is refused at the edit by the guard and verified against its stamp by the
   integration gate.
 

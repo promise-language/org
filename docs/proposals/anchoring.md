@@ -57,7 +57,7 @@ The anchor set is declared in the tree it protects, and **the declaration is its
 otherwise the first move available to an agent is to unanchor what it wants to change. The
 recursion terminates because the approver is a person.
 
-## Enforcement, at three points
+## Enforcement at three points
 
 **A guard, at the edit.** The agent proposing to modify an anchored aspect is refused before it
 happens, with the reason and the way to ask. Cheap and immediate; the agent adapts mid-turn. It
