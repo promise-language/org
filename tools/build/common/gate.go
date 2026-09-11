@@ -1,0 +1,643 @@
+package common
+
+// The gates this project provides.
+//
+// A gate MEASURES and never modifies what it measures. That is the whole
+// difference between this file and verify.go: `verify` is the dev loop, the
+// path that repairs on its way to an answer, which is correct for a command and
+// disqualifying for a gate — an answer about a tree that was repaired first is
+// not an answer about the tree anyone proposed.
+//
+// A gate also does not JUDGE. Nothing here compares a number to a threshold or
+// returns a verdict; it reports what it found and stops. Whether
+// `unformatted_files: 3` is acceptable needs thresholds the gate deliberately
+// does not hold — see run.go, and flow's docs/gates-and-commands.md.
+//
+// org's product is the corpus under docs/, and the Go it carries is the tools
+// module under tools/build — the source of these gates. modules() lists every
+// go.mod the tree holds, and there is none at the root, so what the gates below
+// measure is the tools, and integration is what must hold before a change to
+// them may land. The documents themselves are measured by the workspace's
+// precommit-guard and by `workspace doctor` (docs-structure), not by a gate
+// built here.
+//
+// Nothing in here writes to stdout. Stdout carries the envelope and nothing
+// else, so every child process has its stdout captured. A child's stderr is
+// passed through to the process's own stderr, where a person watching a long
+// run can see progress as it happens — except in gateValue, where the caller
+// needs to parse stderr separately.
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"sort"
+	"strconv"
+	"strings"
+)
+
+// MetricType is what kind of number a measurement is. The set is closed.
+type MetricType string
+
+const (
+	// MetricInt counts things. A count is a whole number of them.
+	MetricInt MetricType = "int"
+	// MetricFloat measures a quantity that is not a count.
+	MetricFloat MetricType = "float"
+)
+
+// Metric is one number a gate measured. It carries no opinion about whether the
+// number is good: that comparison needs a threshold, and a gate holds none.
+//
+// The type travels with the value, and a count is held as an integer rather
+// than as a float that happens to be whole. Reporting a float where a count was
+// declared is a mismatch to name rather than a widening to absorb: a metric
+// whose type changed measured something else, and absorbed silently it would
+// move a ratchet that by construction never moves back.
+type Metric struct {
+	Name string
+	Type MetricType
+	// Exactly one of these carries the value, chosen by Type.
+	Int   int64
+	Float float64
+	Unit  string
+}
+
+// Count is a measurement of how many. Whole by construction.
+func Count(name string, n int) Metric {
+	return Metric{Name: name, Type: MetricInt, Int: int64(n)}
+}
+
+// Quantity is a measurement that is not a count.
+func Quantity(name string, v float64, unit string) Metric {
+	return Metric{Name: name, Type: MetricFloat, Float: v, Unit: unit}
+}
+
+// Size is a measurement of how much, in whole units of it. Neither of the two
+// above fits: Count takes an int and carries no unit, and Quantity is a float.
+// Bytes are whole, carry a unit, and outrun what an int holds on a 32-bit host.
+func Size(name string, n int64, unit string) Metric {
+	return Metric{Name: name, Type: MetricInt, Int: n, Unit: unit}
+}
+
+// Number is the value as a float, for comparison against a threshold. Widening
+// is safe HERE and nowhere else: the judging layer compares, it does not store,
+// so nothing downstream can mistake the widened form for what was measured.
+func (m Metric) Number() float64 {
+	if m.Type == MetricInt {
+		return float64(m.Int)
+	}
+	return m.Float
+}
+
+// String renders the value in its own type — a count never grows a decimal
+// point, and a quantity never loses one.
+func (m Metric) String() string {
+	if m.Type == MetricInt {
+		return strconv.FormatInt(m.Int, 10)
+	}
+	return strconv.FormatFloat(m.Float, 'f', 1, 64)
+}
+
+// metricWire is the envelope form of a Metric: one "value" field, and the type
+// beside it so a reader knows which kind of number it is looking at.
+type metricWire struct {
+	Name  string          `json:"name"`
+	Type  MetricType      `json:"type"`
+	Value json.RawMessage `json:"value"`
+	Unit  string          `json:"unit,omitempty"`
+}
+
+func (m Metric) MarshalJSON() ([]byte, error) {
+	w := metricWire{Name: m.Name, Type: m.Type, Unit: m.Unit}
+	switch m.Type {
+	case MetricInt:
+		w.Value = json.RawMessage(strconv.FormatInt(m.Int, 10))
+	case MetricFloat:
+		w.Value = json.RawMessage(strconv.FormatFloat(m.Float, 'f', -1, 64))
+	default:
+		return nil, fmt.Errorf("metric %q has no type", m.Name)
+	}
+	return json.Marshal(w)
+}
+
+func (m *Metric) UnmarshalJSON(b []byte) error {
+	var w metricWire
+	if err := json.Unmarshal(b, &w); err != nil {
+		return err
+	}
+	m.Name, m.Type, m.Unit = w.Name, w.Type, w.Unit
+	switch w.Type {
+	case MetricInt:
+		// A count arriving with a fractional part is not a count. Refusing it
+		// is the point: absorbed, it would be a type change nothing recorded.
+		if err := json.Unmarshal(w.Value, &m.Int); err != nil {
+			return fmt.Errorf("metric %q is declared %s but its value is not: %w", w.Name, w.Type, err)
+		}
+	case MetricFloat:
+		if err := json.Unmarshal(w.Value, &m.Float); err != nil {
+			return fmt.Errorf("metric %q is declared %s but its value is not: %w", w.Name, w.Type, err)
+		}
+	default:
+		return fmt.Errorf("metric %q has an unknown type %q", w.Name, w.Type)
+	}
+	return nil
+}
+
+// Envelope is what a gate prints on stdout: one JSON object, written whole.
+//
+// It is written whole deliberately. A run killed part-way leaves output that
+// does not parse, which is how a reader tells "measured nothing" from "measured
+// and reported" without asking the gate — a gate that died is not alive to say
+// so.
+type Envelope struct {
+	Gate    string   `json:"gate"`
+	Metrics []Metric `json:"metrics"`
+	// Incomplete names the reason this run measured less than a full one, and
+	// is empty when it did not. A run that skipped part of its work reports
+	// honest numbers that UNDERSTATE what was checked, which is
+	// indistinguishable from an improvement unless the run says so — and a
+	// baseline moved by such a run sets a floor no complete run can meet.
+	Incomplete string `json:"incomplete,omitempty"`
+}
+
+// gateDef is either a leaf that measures, or a composition of other gates.
+type gateDef struct {
+	summary string
+	measure func(repoRoot string) ([]Metric, string, error)
+	parts   []string
+}
+
+// gates is CLOSED. A name absent from this map is refused rather than guessed
+// at, because a runner asking for a gate this project does not have must learn
+// that, not receive an empty measurement that reads like a clean result.
+//
+// The names come from the flow SDK's declared concepts (flow's artifact.go): a
+// project may leave a concept unprovided — org provides no `covered`, since
+// statement coverage of a build tool says nothing about a corpus — but may not
+// invent a spelling for one it has.
+var gates = map[string]gateDef{
+	"formatted": {
+		summary: "source files that gofmt would rewrite",
+		measure: measureFormatted,
+	},
+	"builds": {
+		summary: "packages that fail to compile",
+		measure: measureBuilds,
+	},
+	"checked": {
+		summary: "go vet diagnostics",
+		measure: measureChecked,
+	},
+	"tested": {
+		summary: "failing tests and failing packages",
+		measure: measureTested,
+	},
+	// integration is what a decision rests on: the whole, measured at once.
+	// Its parts stay separately runnable, and that is a requirement rather
+	// than a convenience — a step fixing one failing suite should re-run that
+	// suite, not pay for the formatter and every other target each round.
+	"integration": {
+		summary: "everything that must hold before a change may land",
+		parts:   []string{"formatted", "builds", "checked", "tested"},
+	},
+	// fit is the one gate here whose subject is not the code: it measures the
+	// machine, before work is given to it. It is deliberately NOT a part of
+	// integration — a machine that cannot build is not a change that may not
+	// land. See flow's docs/environment.md.
+	"fit": {
+		summary: "space where this project's work writes",
+		measure: measureFit,
+	},
+}
+
+// GateNames returns every gate this project provides, sorted, for usage text.
+func GateNames() []string {
+	names := make([]string, 0, len(gates))
+	for n := range gates {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+	return names
+}
+
+// GateSummary returns the one-line description of a gate, or "" if unknown.
+func GateSummary(name string) string { return gates[name].summary }
+
+// KnownGate reports whether this project provides a gate by that name.
+func KnownGate(name string) bool { _, ok := gates[name]; return ok }
+
+// MeasureGate runs one gate and returns what it measured.
+//
+// The error return means the measurement could not be OBTAINED — a tool is
+// missing, or the environment refused. It never means "the numbers are bad":
+// three failing tests is a successful run of the `tested` gate, and the
+// envelope says so.
+func MeasureGate(repoRoot, name string) (Envelope, error) {
+	def, ok := gates[name]
+	if !ok {
+		return Envelope{}, fmt.Errorf("no gate named %q in this project", name)
+	}
+	env := Envelope{Gate: name, Metrics: []Metric{}}
+	if def.measure != nil {
+		metrics, incomplete, err := def.measure(repoRoot)
+		if err != nil {
+			return Envelope{}, err
+		}
+		env.Metrics = metrics
+		env.Incomplete = incomplete
+		return env, nil
+	}
+	// A composition. Each part is measured by the same path a caller asking
+	// for that part alone would take, so the whole cannot disagree with its
+	// parts about how anything is measured.
+	var reasons []string
+	for _, part := range def.parts {
+		sub, err := MeasureGate(repoRoot, part)
+		if err != nil {
+			return Envelope{}, fmt.Errorf("%s: %w", part, err)
+		}
+		env.Metrics = append(env.Metrics, sub.Metrics...)
+		if sub.Incomplete != "" {
+			reasons = append(reasons, part+": "+sub.Incomplete)
+		}
+	}
+	env.Incomplete = strings.Join(reasons, "; ")
+	return env, nil
+}
+
+// ParseGateArgs reads a gate invocation: exactly one name, and whether the
+// caller asked for an envelope.
+//
+// The rules it enforces are the protocol, not this program's preferences. A
+// gate is asked for one way, because two callers asking the same thing must
+// not be able to get different answers and both be right — so an unknown flag
+// is refused rather than ignored, and a second name is refused rather than
+// silently dropped.
+func ParseGateArgs(args []string) (name string, envelope bool, err error) {
+	for _, a := range NormalizeArgs(args) {
+		switch {
+		case a == "-envelope":
+			envelope = true
+		case strings.HasPrefix(a, "-"):
+			return "", false, fmt.Errorf("use of unknown flag %q", a)
+		case name != "":
+			return "", false, fmt.Errorf("unexpected argument %q; a gate is asked for by name, once", a)
+		default:
+			name = a
+		}
+	}
+	if name == "" {
+		return "", false, fmt.Errorf("no gate named; known gates: %s", strings.Join(GateNames(), ", "))
+	}
+	if !KnownGate(name) {
+		return "", false, unknownGate(name)
+	}
+	return name, envelope, nil
+}
+
+// unknownGate is the refusal every entry point gives for a name this project
+// does not have. One wording, because a caller that mistyped a gate name is
+// told the same thing whichever program it typed it at.
+func unknownGate(name string) error {
+	return fmt.Errorf("no gate named %q in this project; known gates: %s",
+		name, strings.Join(GateNames(), ", "))
+}
+
+// measureFormatted counts files gofmt would rewrite. `-l` lists them; `-w`
+// would repair them, which is verify's job and not a gate's.
+func measureFormatted(repoRoot string) ([]Metric, string, error) {
+	out, err := gateOutput(repoRoot, repoRoot, "gofmt", "-l", ".")
+	if err != nil && out == "" {
+		return nil, "", fmt.Errorf("gofmt: %w", err)
+	}
+	return []Metric{Count("unformatted_files", countLines(out))}, "", nil
+}
+
+// modules lists every Go module in this repository, root first.
+//
+// `./...` is module-scoped, so one invocation measures one module and silently
+// skips any other — including the source of the gates themselves. A gate that
+// skipped a module would report honest numbers about part of the subject,
+// which is the shape of an incomplete run that does not know it is incomplete.
+//
+// Neither location is assumed. org carries no Go at its root — docs/ is the
+// product — so the root is a module only when a go.mod says so, and the tools
+// module is listed on the same evidence. In this tree that leaves exactly
+// tools/build.
+func modules(repoRoot string) []string {
+	var dirs []string
+	if Exists(filepath.Join(repoRoot, "go.mod")) {
+		dirs = append(dirs, repoRoot)
+	}
+	tools := filepath.Join(repoRoot, "tools", "build")
+	if Exists(filepath.Join(tools, "go.mod")) {
+		dirs = append(dirs, tools)
+	}
+	return dirs
+}
+
+// measureBuilds counts packages that fail to compile. `go build` prefixes each
+// failing package with a "# " header line on stderr, so the headers are the
+// count.
+func measureBuilds(repoRoot string) ([]Metric, string, error) {
+	n := 0
+	for _, dir := range modules(repoRoot) {
+		_, stderr, err := gateValue(repoRoot, dir, "go", "build", "./...")
+		found := countPrefixed(stderr, "# ")
+		if err != nil && found == 0 {
+			// It failed and named no package: the failure is about the
+			// toolchain or the module, not about a package in this tree.
+			return nil, "", fmt.Errorf("go build in %s: %w: %s", dir, err, firstLine(stderr))
+		}
+		n += found
+	}
+	return []Metric{Count("unbuildable_packages", n)}, "", nil
+}
+
+// measureChecked counts go vet diagnostics — the lines naming a file and a
+// position, as distinct from the "# package" headers that group them. The
+// diagnostics are on stderr.
+func measureChecked(repoRoot string) ([]Metric, string, error) {
+	n := 0
+	for _, dir := range modules(repoRoot) {
+		_, stderr, err := gateValue(repoRoot, dir, "go", "vet", "./...")
+		found := countDiagnostics(stderr)
+		if err != nil && found == 0 {
+			return nil, "", fmt.Errorf("go vet in %s: %w: %s", dir, err, firstLine(stderr))
+		}
+		n += found
+	}
+	return []Metric{Count("vet_findings", n)}, "", nil
+}
+
+// measureTested counts failing tests and failing packages. Both are worth
+// having: one failing test in one package and forty in forty are different
+// situations, and a single number cannot tell them apart.
+func measureTested(repoRoot string) ([]Metric, string, error) {
+	tests, pkgs := 0, 0
+	for _, dir := range modules(repoRoot) {
+		out, err := gateOutput(repoRoot, dir, "go", "test", "./...")
+		t := countPrefixed(out, "--- FAIL:")
+		p := countPrefixed(out, "FAIL\t")
+		if err != nil && t == 0 && p == 0 {
+			// The run itself did not happen — a build failure in a test
+			// package, most often. That is not "zero failing tests".
+			return nil, "", fmt.Errorf("go test in %s: %w: %s", dir, err, firstLine(out))
+		}
+		tests += t
+		pkgs += p
+	}
+	return []Metric{
+		Count("failed_tests", tests),
+		Count("failed_packages", pkgs),
+	}, "", nil
+}
+
+// measureFit reports the space available where this project's work writes.
+//
+// It reports bytes and stops. How much is enough is a property of this
+// project's build, held by the judging layer: "is there enough disk" reads like
+// a yes/no question and is not one, and a gate that answered it would be the
+// threshold sitting inside the party under measurement.
+//
+// Two filesystems, because they are two requirements and are often not one
+// device: the worktree is where the change is written, and the build cache is
+// where the toolchain writes what it reuses. Both are reported every run even
+// when they resolve to the same filesystem — an envelope whose shape varied by
+// host is one no threshold can be written against.
+func measureFit(repoRoot string) ([]Metric, string, error) {
+	free, err := freeBytesNear(repoRoot)
+	if err != nil {
+		return nil, "", fmt.Errorf("free space at %s: %w", repoRoot, err)
+	}
+	metrics := []Metric{Size("worktree_free_bytes", free, "bytes")}
+
+	cache, why := buildCache(repoRoot)
+	if why != "" {
+		// Named rather than omitted. One filesystem of two IS a run that
+		// measured less than a full one, and an incomplete run is never a
+		// pass — which is the right answer here: a machine whose toolchain
+		// cannot say where it writes is not one this project's work runs on.
+		return metrics, "the build cache location is unknown, so only the " +
+			"worktree filesystem was measured: " + why, nil
+	}
+	free, err = freeBytesNear(cache)
+	if err != nil {
+		return nil, "", fmt.Errorf("free space at %s: %w", cache, err)
+	}
+	return append(metrics, Size("build_cache_free_bytes", free, "bytes")), "", nil
+}
+
+// buildCache asks the toolchain where it writes what it reuses, and returns
+// either the path or the reason there is none to report. `go env GOCACHE` is
+// the only authoritative answer: recomputing it here would be a second copy of
+// the toolchain's own resolution, wrong on every machine that configured it.
+//
+// The answer is read from stdout ALONE, which is why this does not go through
+// gateOutput. The counting gates read lines, where a warning on stderr is one
+// more line matching nothing; a path read from the combined stream is a path
+// with the warning glued to the front of it. `go env` writes its diagnostics
+// and its toolchain-download notices to stderr and the value to stdout, and the
+// concatenation names nothing — which freeBytesNear then walks up to the
+// process's own directory and reports as the build cache, at full size, with no
+// incomplete to say the number is about somewhere else.
+func buildCache(repoRoot string) (path, why string) {
+	stdout, stderr, err := gateValue(repoRoot, repoRoot, "go", "env", "GOCACHE")
+	cache := strings.TrimSpace(stdout)
+	if err != nil || cache == "" {
+		return "", gocacheReason(stderr, err)
+	}
+	// An answer that is not an absolute path is not a location. freeBytesNear
+	// walks up to the nearest filesystem it can find, and a relative answer
+	// walks up to the process's own directory — a real number about a
+	// filesystem nobody asked about, which is worse than no number at all.
+	if !filepath.IsAbs(cache) {
+		return "", fmt.Sprintf("`go env GOCACHE` answered %q, which is not an absolute path", cache)
+	}
+	return cache, ""
+}
+
+// gocacheReason accounts for a `go env GOCACHE` that did not answer.
+//
+// Never empty, which is the whole of it. An unfit machine is reported with the
+// measurement that established it, and a reason that trails off after a colon
+// leaves an operator to reproduce the condition on the machine that is already
+// the problem. The child's own stderr is preferred because it says what the
+// toolchain objected to; a child that could not be started produced none, and
+// there the error is the entire account.
+func gocacheReason(stderr string, err error) string {
+	if line := firstLine(strings.TrimSpace(stderr)); line != "" {
+		return line
+	}
+	if err != nil {
+		return err.Error()
+	}
+	return "`go env GOCACHE` printed nothing"
+}
+
+// freeBytesNear reports free space for path, or for the nearest ancestor that
+// exists. A build cache that has never been written has no directory yet, and
+// `fit` runs on exactly that machine — the fresh one, before work is given — so
+// a path that is not there yet is the ordinary case rather than an error.
+func freeBytesNear(path string) (int64, error) {
+	for p := filepath.Clean(path); ; {
+		if Exists(p) {
+			return freeBytes(p)
+		}
+		parent := filepath.Dir(p)
+		if parent == p {
+			return 0, fmt.Errorf("nothing on the path %s exists", path)
+		}
+		p = parent
+	}
+}
+
+// maxToolOutput bounds what a gate runner reads from a child's stdout. 10 MiB
+// is enough for any measurement output and small enough that a chatty child
+// cannot exhaust the process.
+const maxToolOutput = 10 << 20 // 10 MiB
+
+// announceColumn is the display column the directory parenthetical starts at,
+// counted from the end of the "==> " prefix. It is a column and not a limit: a
+// command longer than this pushes its parenthetical right rather than being cut.
+const announceColumn = 28
+
+// outsideRepo is what a directory that is not under the repository root is
+// called on a progress line — a fixed string, never a path.
+const outsideRepo = "outside the repository"
+
+// announce writes the one progress line a gate prints before each child it
+// runs. Both runners come through here because the format has to exist in one
+// place: the two lines this naming exists to tell apart stop being comparable
+// the moment two copies of the format drift.
+//
+// The directory is what the line adds. A repository with two modules runs
+// `go build ./...` twice over modules(), and a line naming only the command
+// prints the same eleven characters for two different pieces of work — output
+// indistinguishable from a gate running everything twice, whose obvious "fix"
+// is to stop measuring the module that builds the gates.
+func announce(repoRoot, dir, name string, args []string) {
+	command := strings.TrimSpace(name + " " + strings.Join(args, " "))
+	fmt.Fprintf(os.Stderr, "==> %-*s (%s)\n", announceColumn, command, relToRepo(repoRoot, dir))
+}
+
+// relToRepo names dir the way a reader of this repository knows it: "." for the
+// root and "tools/build" for the module under it, with forward slashes on every
+// host so a line reads the same wherever it was produced.
+//
+// Relative, never absolute. An absolute path here is noise and a disclosure at
+// once: the commit guard refuses an absolute home path outright, so a pasted
+// transcript of a run would be refused.
+//
+// The label is DERIVED from the directory the child is given rather than passed
+// beside it. A label carried alongside dir is a second copy of the same fact,
+// free to disagree with the directory the child actually ran in.
+func relToRepo(repoRoot, dir string) string {
+	rel, err := filepath.Rel(repoRoot, dir)
+	// Rel fails when there is no path from one to the other — different volumes
+	// on Windows. When it succeeds for a directory outside the root it answers
+	// with a "../" path, which is what IsLocal refuses; "." is the root itself
+	// and IsLocal accepts it, so the commonest answer here needs no exception.
+	// Neither refusal is reachable from this file's callers today: they exist so
+	// that no later caller can turn this line back into the path it was written
+	// to keep out, and answering with a name rather than "." is what keeps such
+	// a caller from claiming work happened in the repository when it did not.
+	if err != nil || !filepath.IsLocal(rel) {
+		return outsideRepo
+	}
+	return filepath.ToSlash(rel)
+}
+
+// gateOutput runs a child and returns its stdout as a string. Stderr is
+// passed through to os.Stderr so a person watching a long gate sees the
+// child's progress as it happens — silence and a hang look the same from
+// outside.
+func gateOutput(repoRoot, dir, name string, args ...string) (string, error) {
+	announce(repoRoot, dir, name, args)
+	bw := newBoundedWriter(maxToolOutput)
+	cmd := exec.Command(name, args...)
+	cmd.Dir = dir
+	cmd.Stdout = bw
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	return string(bw.Bytes()), err
+}
+
+// gateValue runs a child whose output is a VALUE, and keeps its two streams
+// apart.
+//
+// Both are captured: stdout because our stdout carries the envelope and nothing
+// else, and stderr because the caller parses it — see buildCache, where mixing
+// them turns a warning into part of a path. Stderr is not passed through here,
+// which is the deliberate exception to the file-level rule.
+func gateValue(repoRoot, dir, name string, args ...string) (stdout, stderr string, err error) {
+	announce(repoRoot, dir, name, args)
+	out := newBoundedWriter(maxToolOutput)
+	errs := newBoundedWriter(maxToolOutput)
+	cmd := exec.Command(name, args...)
+	cmd.Dir = dir
+	cmd.Stdout = out
+	cmd.Stderr = errs
+	err = cmd.Run()
+	return string(out.Bytes()), string(errs.Bytes()), err
+}
+
+func countLines(s string) int {
+	n := 0
+	for _, line := range strings.Split(s, "\n") {
+		if strings.TrimSpace(line) != "" {
+			n++
+		}
+	}
+	return n
+}
+
+// countPrefixed counts lines starting with prefix, ignoring leading
+// whitespace — `go test` indents a failing subtest under its parent, and a
+// subtest that failed is a failing test.
+func countPrefixed(s, prefix string) int {
+	n := 0
+	for _, line := range strings.Split(s, "\n") {
+		if strings.HasPrefix(strings.TrimLeft(line, " \t"), prefix) {
+			n++
+		}
+	}
+	return n
+}
+
+// countDiagnostics counts vet findings: lines of the form path:line:col: msg.
+// The "# package" headers that group them are not findings.
+func countDiagnostics(s string) int {
+	n := 0
+	for _, line := range strings.Split(s, "\n") {
+		if strings.HasPrefix(line, "#") || strings.TrimSpace(line) == "" {
+			continue
+		}
+		if isDiagnostic(line) {
+			n++
+		}
+	}
+	return n
+}
+
+// isDiagnostic reports whether a line names a source position: at least two
+// colon-separated numeric fields after a path.
+func isDiagnostic(line string) bool {
+	parts := strings.Split(line, ":")
+	if len(parts) < 3 {
+		return false
+	}
+	if _, err := strconv.Atoi(parts[1]); err != nil {
+		return false
+	}
+	_, err := strconv.Atoi(parts[2])
+	return err == nil
+}
+
+func firstLine(s string) string {
+	first, _, _ := strings.Cut(s, "\n")
+	return first
+}

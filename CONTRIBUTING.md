@@ -45,6 +45,7 @@ uncertain provenance, or excerpts whose license does not permit this dual licens
 
 ## Commit identity
 
-Commits must carry a `@users.noreply.github.com` author and committer email. The repo's
-pre-commit hook enforces this locally. Activate the tooling in a fresh clone with `./make`,
-which also wires the hooks.
+Commits must carry a `@users.noreply.github.com` author and committer email. The pre-commit
+hook (`bin/precommit-guard`, installed by `workspace setup`) enforces this locally, and refuses
+to commit any tree `bin/verify` has not blessed. Activate the tooling in a fresh clone with
+`./make`, which also wires the hooks.

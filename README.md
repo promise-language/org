@@ -18,9 +18,11 @@ amendment pass and released to the fleet
 ## Dev tooling
 
 ```
-./make        # compiles the dev tools into bin/
-bin/verify    # the commit gate
+./make            # compiles the project tools into bin/
+bin/verify        # the commit gate: format → vet → build → test → record
+bin/run <gate>    # measure one gate and judge it (bin/gate --list names them)
 ```
 
 The build workflow is described in `CLAUDE.md`; the tooling layout follows
-[forge](https://github.com/promise-language/forge)'s blueprint.
+[forge](https://github.com/promise-language/forge)'s blueprint, and the tool set
+is the one the workspace's tool contract fixes — `workspace doctor` checks it.
