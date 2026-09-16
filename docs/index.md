@@ -33,6 +33,8 @@ tree's own compliance gaps; in a project's copy, that project's compliance work.
 
 - [proposals/anchoring.md](proposals/anchoring.md) — Aspects whose modification requires a
   person's approval, and the path an approval travels.
+- [proposals/consolidation.md](proposals/consolidation.md) — The pass that restructures a
+  repository's open items into one item per area of the product, current against the norms.
 - [proposals/distribution.md](proposals/distribution.md) — The files this repository places in
   every managed project's tree, and what keeps those copies honest.
 - [proposals/norm-flows.md](proposals/norm-flows.md) — The item types that carry a change to a
