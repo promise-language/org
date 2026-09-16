@@ -103,9 +103,20 @@ reason, and cuts no release.
 
 ## The release
 
-> **A tag push is a release, nothing else is.** The tag is `docs-<year>.<n>`, annotated, with `n`
-> counting the year's releases from 1, and it names the commit a project stands on when it
-> declares the release.
+> **A tag push is a release, nothing else is.** The tag is `v<major>.<minor>.<patch>`, annotated,
+> and it names the commit a project stands on when it declares the release.
+
+> **The number says what adopting it costs.** **Major**: a citation may break — a heading renamed,
+> a document moved, renamed or retired. **Minor**: rules changed or were added and no citation
+> breaks. **Patch**: no rule changed, so nothing in any dependent can have become wrong.
+
+A dependent reads the number before it reads the notes, and the three answer the question it
+actually has: whether this release will stop its upgrade, give its tree work, or cost nothing.
+Major is exactly the case where the upgrade's carry check fails and a person has to say what a
+reference should now cite ([upgrade](norm-flows.md#upgrade)); minor is the case where the bump
+lands unattended and the walk that follows finds the work; patch is the case where both are
+mechanical. A number that counted releases instead would tell a dependent when this one was cut,
+which is the one thing the tag list already says.
 
 > **Every release carries release notes, published with the tag as the repository's release
 > entry, in one form: per amended document, what changed, and what a project now looks for in

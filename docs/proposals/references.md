@@ -45,7 +45,7 @@ the argument the resolver takes.
 
 | Repository | Release |
 |---|---|
-| `org` | `docs-2026.3` |
+| `org` | `v1.0.0` |
 | `base` | `v0.4.0` |
 ```
 
