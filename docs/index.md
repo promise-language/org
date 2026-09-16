@@ -11,7 +11,7 @@ binds every managed project and is distributed to each as `docs/org/`; the root 
 corpus, so there is no `docs/org/`, and a rule changes here and nowhere else. How a change
 arrives here and reaches the fleet is [proposals/release-cycle.md](proposals/release-cycle.md).
 
-**The status query.** Every specification's tag line points here for the query that lists its
+**The status query.** Every tagged document's header points here for the query that lists its
 remaining work — in this repository, the remaining work on the *definition*, together with this
 tree's own compliance gaps; in a project's copy, that project's compliance work. The query is:
 
@@ -33,10 +33,14 @@ tree's own compliance gaps; in a project's copy, that project's compliance work.
 
 - [proposals/anchoring.md](proposals/anchoring.md) — Aspects whose modification requires a
   person's approval, and the path an approval travels.
-- [proposals/distribution.md](proposals/distribution.md) — How a ratified document reaches every
-  managed project, and what keeps the copies honest.
-- [proposals/doc-sync.md](proposals/doc-sync.md) — The org tools and org CI that drive the
-  distribution loop, and what may run unattended.
+- [proposals/distribution.md](proposals/distribution.md) — The files this repository places in
+  every managed project's tree, and what keeps those copies honest.
+- [proposals/norm-flows.md](proposals/norm-flows.md) — The item types that carry a change to a
+  normative document, and the steps each one runs.
+- [proposals/org.md](proposals/org.md) — `bin/org`: what carries a release to every project that
+  stands on this one, and what may run unattended.
+- [proposals/references.md](proposals/references.md) — How a document in one repository cites
+  one in another, and the declaration a project holds instead of a copy.
 - [proposals/release-cycle.md](proposals/release-cycle.md) — How the corpus changes and how a
   change reaches the fleet: intake, the amendment pass, the release, and the reconciliation that
   follows.

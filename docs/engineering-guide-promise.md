@@ -3,15 +3,14 @@
 > **Tag:** `engineering-guide-promise` — remaining work to complete this document: the query
 > named in `docs/index.md`.
 
-> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document is
-> distributed into each managed project as `docs/org/`. A copy is never edited in place: to
-> change it, file an issue against `org`.
+> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document
+> changes here and nowhere else. To change it, file an issue against `org`.
 
 The [engineering guide](engineering-guide.md) applied to Promise source (`.pr` files). Nothing here
 contradicts it; everything here is Promise-specific form. Promise's additions to the guide's
 abbreviation dictionary — `ch` for *character*, and what its released standard library adds under
-the guide's released-product carve-out — live in §9.3a of Promise's
-[`docs/language-design.md`](https://github.com/promise-language/promise/blob/main/docs/language-design.md).
+the guide's released-product carve-out — live in promise's `docs/language-design.md`, its
+`approved-abbreviation-dictionary` section.
 
 ## Fields and construction
 

@@ -3,13 +3,12 @@
 > **Tag:** `cli-guide` — remaining work to complete this document: the query named in
 > `docs/index.md`.
 
-> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document is
-> distributed into each managed project as `docs/org/`. A copy is never edited in place: to
-> change it, file an issue against `org`.
+> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document
+> changes here and nowhere else. To change it, file an issue against `org`.
 
 How every command-line tool in the organization behaves at its invocation surface: how it takes
-parameters, how it reports, and how it refuses. A rule stated as a blockquote is an invariant, and
-the prose under it is why.
+parameters, how it reports, and how it refuses. Its blockquotes are read as
+[normative.md](normative.md#end-state) says: each is an invariant, and the prose under it is why.
 
 ## Scope
 
@@ -17,9 +16,12 @@ This document governs the invocation surface of every command-line tool an organ
 ships — the `bin/` tools and any binary a project's contributors or agents run by hand. It does not
 own:
 
-- **Which tools a project must have** — the tool contract owns that.
-- **The gate envelope and the `--envelope` protocol** — the gate contract owns that.
-- **How tools are built, provisioned, and kept fresh** — the tooling document owns that.
+- **Which tools a project must have** — workspace's tool contract, its `docs/tool-contract.md`,
+  owns that.
+- **The gate envelope and the `--envelope` protocol** — base's gate contract, its
+  `docs/gate-contract.md`, owns that.
+- **How tools are built, provisioned, and kept fresh** — workspace's tooling document, its
+  `docs/tooling.md`, owns that.
 
 ## Explicit inputs
 
@@ -40,37 +42,84 @@ Two narrow uses are sanctioned, and both are outside the tool's outcome:
   action in the entire subprocess tree is containment, not argument transport: it is read by the
   guard, not by the tool, and it can only narrow what is possible, never select behaviour.
 
+> **A parameter another program owns is named by its source, never read from its variable.** A
+> credential, a profile, a provider's account: the tool takes a flag naming the source — the
+> profile, the chain, the file — the platform that owns the variable resolves it, and the result
+> names what it resolved to.
+
+A provider's SDK reads its own variables; that is the provider's contract, and a tool that refused
+it would be refusing the platform rather than protecting an audit trail. What the tool may not do
+is let the variable decide silently. `-credentials production` on the command line says which
+source was used, the identity in the result says what it became, and two invocations that read
+alike acted alike or say why not. Where the source is a machine fact it is configurable
+([configuration](#configuration)) — a default the command line can be asked for, never a variable
+the command line cannot see. A variable the platform defines for locating its own fixed places —
+the user's home, the executable path — is read by the platform's own call and decides nothing
+about what the tool does.
+
 ## Flag form
 
-> **A flag is a full-English-word name, dash-separated when multiword, prefixed with `-` or `--`.**
-> The two prefixes are the same flag: tools normalize the prefix once, then match the name exactly.
+> **A flag is a name, dash-separated when multiword, prefixed with `-` or `--`.** Its words are
+> the engineering guide's ([naming](engineering-guide.md#naming)): full English words, the
+> abbreviation dictionary's entries, and a quantity with its unit. The two prefixes are the same
+> flag: tools normalize the prefix once, then match the name exactly.
 
-`--my-long-flag` and `-my-long-flag` are one flag. `--myLongFlag`, `--my_long_flag`, and
-abbreviations are not flags at all — they are unknown input ([fail closed](#fail-closed)).
+`--my-long-flag` and `-my-long-flag` are one flag. `--myLongFlag`, `--my_long_flag`, and a
+clipped word are not flags at all — they are unknown input ([fail closed](#fail-closed)).
 
 > **A name — a flag's or a subcommand's — is lowercase ASCII letters `a`–`z` and digits `0`–`9`,
-> with `-` as the only separator.** Nothing else: no uppercase, no underscores, no dots, no
-> characters outside ASCII.
+> with `-` as the only separator within it.** Nothing else: no uppercase, no underscores, no
+> dots, no characters outside ASCII. The one character that may join names is the `:` of a
+> compound subcommand, below.
 
 Case is the cheapest way to mint an accidental alias — `--force` and `--Force` are one name to a
 person and two to a matcher — and anything beyond lowercase ASCII is a name that types
 differently across keyboards, shells, and platforms. A closed alphabet keeps every name exactly
 as greppable, quotable, and portable as the one canonical spelling requires.
 
+> **A subcommand may be compound: two or more names joined by `:`, `<concept>:<instance>` being
+> the common shape.** The compound is one name — addressed exactly, declared in the tool's
+> specification, never a prefix to search under.
+
+A gate is `tested:root`: a concept every project shares and an instance only the project knows,
+and a finer instance adds a segment. The instance is not a value — `tested -instance root` makes
+every consumer rejoin what one name declared, one flow asked for, and one judge named — and it is
+not a second path segment, which would leave `root` meaning nothing on its own. The alphabet
+stays computable: a name, then any number of `:` each followed by a name; an empty segment is
+not a name.
+
 > **One name per flag. No aliases, no fallbacks.** There is exactly one canonical way to pass each
 > parameter, and that way is the one help text, error messages, and documentation use.
 
 A second name for the same thing is a second thing to search for, a second thing to deny in a
-guard, and a fork in every transcript. The exceptions to the full-English-word rule are the
-engineering guide's abbreviation dictionary, and nothing else: a flag has no exception of its
-own.
+guard, and a fork in every transcript. The words a name may use are the engineering guide's, and
+a flag has no exception of its own.
 
-> **A value flag declares a type.** String, integer, boolean is not a value type, duration, path,
-> enumeration — the type is part of the flag's definition, printed by `-help`, and a value that
-> does not satisfy it is a usage error naming the flag, the value, and the expected type.
+> **A value flag declares a type, and takes its value as the next argument or attached with
+> `=`.** String, integer, duration, path, enumeration, or a list of one of those — boolean is not
+> a value type — and the type is part of the flag's definition, printed by `-help`, and a value
+> that does not satisfy it is a usage error naming the flag, the value, and the expected type.
 
-A value is given as the next argument (`-timeout 30s`) or attached with `=` (`-timeout=30s`); both
-normalize to the same parameter.
+`-timeout 30s` and `-timeout=30s` are one parameter, as the two prefixes are one flag: the tool
+normalizes the spelling once and matches the value against the type.
+
+> **A duration is one positive integer and one unit: `ms`, `s`, `m`, `h`, or `d`.** No fraction,
+> no sign, no compound — `1h30m` is `90m` — and no other unit, on the command line, in the
+> parameter file, and in any field a tool writes.
+
+A type named without its grammar is one grammar per tool: `1h30m`, `90m`, `1.5h`, `5400s`, and
+`PT1H30M` are each defensible, a reader of two tools' help cannot tell which each takes, and a
+parameter file carrying a duration means different things to different readers of one field. One
+grammar is one parser in every language and one value that travels a command line, a file, and a
+wire field unchanged. The units are the ones a reader needs no knowledge of the tool to read.
+
+> **A list is `list of <type>`: comma-separated on the command line, an array in the parameter
+> file, every element checked as its type.** An empty element is a usage error.
+
+A list declared as a string is a parser per tool: `-help` says `string`, which is true and useless;
+one tool drops an empty element where the next refuses it and a third takes a trailing comma; and
+the parameter file has nothing to map an array to. Naming the element type keeps the check where
+the type is.
 
 > **A boolean flag has a spelling for each state that differs from its default — `-my-flag`
 > asserts it, `-no-my-flag` denies it — and a spelling that could only restate the default does
@@ -78,13 +127,13 @@ normalize to the same parameter.
 > pointer to the spelling that exists.
 
 A boolean whose default is off has `-my-flag` alone; one whose default is on has `-no-my-flag`
-alone; one whose default is decided at run time — from what the tool finds, as the [output
-mode](#output-modes) is — has both. `-no-dry-run` on a tool that does not dry-run by default is a
-second spelling of saying nothing: it can be passed to no effect, it cannot appear in a transcript
-that means anything, and it is one more name to match and to document for a behaviour that already
-happens. The denial is a word rather than `=false` because a decision hidden inside a value is one a
-reader scanning for the flag's name misreads — and it exists at all only when there is something to
-deny. A default that changes gains or loses its spelling in the same change.
+alone; one whose default is decided at run time — from what the tool finds — has both.
+`-no-dry-run` on a tool that does not dry-run by default is a second spelling of saying nothing:
+it can be passed to no effect, it cannot appear in a transcript that means anything, and it is one
+more name to match and to document for a behaviour that already happens. The denial is a word
+rather than `=false` because a decision hidden inside a value is one a reader scanning for the
+flag's name misreads — and it exists at all only when there is something to deny. A default that
+changes gains or loses its spelling in the same change.
 
 ## One order
 
@@ -147,6 +196,18 @@ version](#help-and-version)). A rule with one exception has to be known, where a
 can be assumed, and the caller most likely to forget the exception is the script that pipes every
 command alike.
 
+> **A command whose output a named contract fixes has one mode.** Its specification names the
+> contract; on that command `-json` and `-human` are unknown input, and the refusal names the
+> contract ([fail closed](#fail-closed)).
+
+A gate prints one envelope; a judge prints one verdict. The shape is the contract's, not this
+document's, and a caller that asked for it is reading it. Honouring `-human` there destroys what
+the caller is parsing; accepting it and printing the envelope anyway is the silently dropped flag
+this document forbids; so the flag is refused, and the refusal says which contract owns the
+output. The script that pipes every command alike loses nothing — what it reads is the contract's
+form either way — and the only reader the rule touches is the one who typed a mode the command
+does not have.
+
 > **Stdout carries the result and nothing else. Progress and narration go to stderr.**
 
 That is what makes `tool > out.json` and `tool -json 2>/dev/null` both behave. JSON on stdout is a
@@ -157,7 +218,8 @@ than zero.
 
 > **Every tool supports `-help`**: it prints the subcommands and, per subcommand, every flag with
 > its type and a one-line description — or simply every flag, when the tool has no subcommands.
-> It exits 0, and it is the only place the full flag list appears.
+> It exits 0, and it is the only place the full flag list appears. A tool that is not fit to act
+> answers neither this nor `-version` ([exit codes](#exit-codes)).
 
 A flag whose default is configurable ([configuration](#configuration)) also shows the value in force
 and the file it came from. In JSON, `-help` is the surface as data — the same facts, in one object
@@ -180,7 +242,18 @@ every tool shares:
 
 The top-level `description` and `flags` are the root command's — the whole tool's, when it has no
 subcommands, and then `commands` is empty. A flag's `type` is the one [flag form](#flag-form) has it
-declare, and a configurable flag adds `value` and `source`.
+declare — a list adds `element`, the type of its elements — and a configurable flag adds `value`
+and `source`.
+
+> **A command set the tool does not author is described, never listed.** Where the commands are
+> the project's — the gates it answers — `-help` describes them as one class, names the
+> invocation that enumerates them, and lists none of them.
+
+An enumeration in two places is one fact with two homes, free to drift: `bin/gate --list` is the
+gates' one home, and help says so. In JSON the class is one entry under `commands` whose `name` is
+the pattern, `<gate>`, and whose `enumerated-by` is the invocation. A tool knows at definition
+time which of its commands it authors, so a checker can tell the class from a tool that left
+commands out.
 
 > **Every tool supports `-version`**: it identifies the binary as either a comprehensible release
 > version or the commit hash it was built from. It exits 0.
@@ -270,6 +343,11 @@ so it collides with nothing a tool processes.
 > **The command set is closed in both directions**: no command is added outside the tool's
 > definition, and no command answers to a name not in the set. Each command has exactly one name.
 
+A set the tool does not author — the gates a project answers — is closed by the definition that
+lists it, and the tool's specification names that definition. Its members are compound names
+([flag form](#flag-form)), and `bin/gate tested:root --envelope` is the [one order](#one-order):
+the path `gate tested:root`, complete, then the flag the runner appends.
+
 > **Addressing is exact.** An identifier the user types resolves to exactly what it names, never to
 > something that merely contains or resembles it.
 
@@ -277,7 +355,34 @@ so it collides with nothing a tool processes.
 
 > **`0` — did what was asked**, including when there was nothing to do. An empty result is not an
 > error. **`1` — could not complete**, or stopped on a condition a human must clear. **`2` — the
-> invocation itself was malformed**, and nothing was done.
+> invocation itself was malformed**, and nothing was done. **`3` — the tool refused to act**,
+> because it is not fit to: built from source other than the tree beside it, not built by the
+> project's builder, its own precondition unmet. Nothing was done, and the refusal names the
+> condition and what clears it.
+
+The four answer two questions. Was the subject examined: `0` and `1` say yes, `2` and `3` say no.
+Whose repair is it: `1` the subject's, `2` the invocation's, `3` the installation's. A stale tool
+that exits `1` reports the subject as bad, and its caller names a repair that is not the repair —
+the one thing the message will not say is "rebuild the tools".
+
+> **A tool that is not fit to act refuses every invocation**, `-help` and `-version` included,
+> before it reads the command line. The one tool that never refuses on this ground is the builder
+> the refusal names: it needs nothing pre-built, so the way out is always open.
+
+Help and version are not an exemption here but the reason for the rule. What a stale binary would
+print is the surface it was built with, and that is exactly what is out of date: it would describe
+flags that have moved and name a version that is not what the tree holds, confidently and in the
+one place an operator goes to learn what a tool is. A binary that cannot be trusted to measure
+cannot be trusted to describe itself either. Refusing before the command line is read is what
+keeps the answer from depending on which flag was typed.
+
+> **A refusal is the result.** It goes to stdout in the mode in force ([output
+> modes](#output-modes)): in JSON one object, `{"condition": "…", "recovery": "…"}`, naming the
+> condition and what clears it; in human mode one line saying the same. A caller reads the status
+> to know it received no answer, and the object to know why.
+
+A sentinel at the head of stderr is prose, not a protocol: the first rewording breaks every
+matcher, and the matchers live in other repositories than the tool.
 
 ## Configuration
 

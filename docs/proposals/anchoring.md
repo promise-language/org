@@ -2,13 +2,11 @@
 
 > **Proposal.** Not normative: an end state under discussion, binding nothing until ratified.
 
-> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document is
-> distributed into each managed project as `docs/org/`. A copy is never edited in place: to
-> change it, file an issue against `org`.
+> **Tag:** `anchoring` — remaining work to complete this document: the query named in
+> `docs/index.md`.
 
-The org-level successor to flow's
-[`docs/proposals/anchoring.md`](https://github.com/promise-language/flow/blob/main/docs/proposals/anchoring.md)
-sketch, widened to the whole fleet.
+The org-level successor to flow's `docs/proposals/anchoring.md` sketch, widened to the whole
+fleet.
 
 Some parts of a project are not ordinary content. Changing them changes what "correct" means for
 every change that follows — and an agent resolving an item can change them as easily as it changes

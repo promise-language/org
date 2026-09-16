@@ -1,9 +1,9 @@
 
 # forge dev tooling — bin/ holds locally-built tools, never committed
-bin/
-/.flow/
-/.workspace/
-/.mcp.json
 /.claude/settings.local.json
+/.flow/
+/.home/
+/.mcp.json
+/.workspace/
+/bin/
 /CLAUDE.local.md
-/make.local

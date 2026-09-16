@@ -3,16 +3,15 @@
 > **Tag:** `engineering-guide` — remaining work to complete this document: the query named in
 > `docs/index.md`.
 
-> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document is
-> distributed into each managed project as `docs/org/`. A copy is never edited in place: to
-> change it, file an issue against `org`.
+> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document
+> changes here and nowhere else. To change it, file an issue against `org`.
 
 How code in this organization is written, in any language — naming, shape, testing, visibility,
 effects, and what to do when the platform is in the way. The language-specific form of these rules
 lives in the per-language guides — [`engineering-guide-promise.md`](engineering-guide-promise.md),
 [`engineering-guide-go.md`](engineering-guide-go.md) — which apply this document to one language
-and never contradict it. A rule stated as a blockquote is an invariant, and the prose under it is
-why.
+and never contradict it. Its blockquotes are read as [normative.md](normative.md#end-state) says:
+each is an invariant, and the prose under it is why.
 
 ## Why this is in the tree
 
@@ -49,6 +48,12 @@ shadow the real path all fail it. When a second way is found, one of the two is 
 - **Proper names are verbatim.** Technologies, formats, and algorithms keep their own spelling —
   `base64`, `utf8`, `json`, `sha256`, `url` — with only the casing following the language's
   convention.
+- **A quantity is a number and its unit, and neither is an abbreviation.** `5h`, `7d`, `10mb` are
+  how a quantity is written, not a clipped word, and the unit is one a reader needs no knowledge
+  of the project to read — `-pace-7d` answers "how long" to anyone. Where the quantity's type has
+  a grammar, the name spells it as the grammar does: a duration's is
+  [flag form](cli-guide.md#flag-form)'s. What the full-word rule forbids is truncating a word —
+  `-h` for `-help` loses letters only context restores — and `7d` loses nothing.
 - **Do not prefix a member with its type.** `response.status`, not `response.status_code`. The
   caller already has the context.
 
@@ -268,6 +273,37 @@ A sleep standing in for a happens-before edge is load-sensitive: the window that
 laptop collapses on a loaded runner, and no amount of lengthening fixes it. This is not a ban on
 testing timing *behaviour*; it is a ban on using a clock where a signal belongs.
 
+> **Nothing retries to make a failure go away.** Code does not re-attempt an operation in the
+> hope that it succeeds, until it succeeds, or to let something else finish first. A retry
+> implements a contract or it does not exist: it is admissible only where a specification names
+> the failure transient and the operation safe to repeat, and the code cites that contract at the
+> retry.
+
+A retry is the time rule with the clock taken out: it assumes the failure is transient without
+establishing it, and it is tuned by the same reflex — when three attempts do not clear it, someone
+writes five, and nothing distinguishes 3 from 5 from 100000. It is worse than a sleep. A sleep
+delays a result; a retry changes it, converting a reproducible defect into an intermittent one,
+and the first failure — the one carrying the diagnostic — is the one the loop discards. A retry is
+almost always arguable by analogy and almost never justified by evidence; the named contract is
+how the two are told apart. A failure nobody understood is reported, with its evidence, and filed
+— never re-attempted.
+
+> **A test never reads the wall clock.** Every instant a test depends on is injected and pinned;
+> a test whose outcome changes with the date it runs on is asserting the date.
+
+> **Code that takes a clock takes all of its time from it.** Once a component accepts an injected
+> clock, every reading of time inside it — stamping, expiry, pruning, backoff — goes through that
+> clock. A direct read of the system clock beside an injected one is a second clock, and the two
+> agree only in production, where nobody is looking.
+
+A wall-clock dependency is the environment dependency ([testing](#testing)) that arrives on a
+schedule: it passes on the day it is written, so review and the gate approve it, and it fails
+later on a tree nobody touched, where bisection finds every commit equally guilty. Pinning the
+test's clock is not the fix on its own — a mixed clock makes the code look testable, and the tests
+it passes are valid only within a window around the day they were written. The fix is one source
+of time, and the test controls it. This bans an outcome that depends on the calendar, not
+measuring real elapsed time where that is the behaviour under test.
+
 ## Everything a program writes has a ceiling
 
 > **A sink that only grows is a leak with a slower clock.** A log, a journal, a spool, a cache, a
@@ -350,11 +386,13 @@ wrong once.
 - **Co-locate tests with the code they test.** A separate tree is for cross-cutting integration
   tests only.
 - **Tests never rely on the environment they happen to run in** — the host's locale, a
-  developer's `PATH`, ambient credentials, the working directory. A test states its whole world or
+  developer's `PATH`, ambient credentials, the working directory, the current date or time
+  ([time is not a coordinate](#time-is-not-a-coordinate)). A test states its whole world or
   builds it.
 - **Zero leaks, and the check never gets suppressed.** There is no annotation for tolerating one.
 - **Every wire contract has a conformance suite**, and every implementation passes the same one.
-- Synchronization rules for tests are in [Time is not a coordinate](#time-is-not-a-coordinate).
+- Synchronization, retry, and clock rules for tests are in
+  [Time is not a coordinate](#time-is-not-a-coordinate).
 
 ## No hidden effects
 

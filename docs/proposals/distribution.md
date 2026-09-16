@@ -2,94 +2,64 @@
 
 > **Proposal.** Not normative: an end state under discussion, binding nothing until ratified.
 
-> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document is
-> distributed into each managed project as `docs/org/`. A copy is never edited in place: to
-> change it, file an issue against `org`.
+> **Tag:** `distribution` — remaining work to complete this document: the query named in
+> `docs/index.md`.
 
-How a document ratified in this repository reaches every managed project, and what keeps the
-copies honest. The process around this machinery — intake, the amendment pass, the release — is
-[release-cycle](release-cycle.md)'s; the tools and CI that run it are [doc-sync](doc-sync.md)'s.
-
-A specification ratified here binds every project, and each project carries a copy in its own
-tree — a rule that lives in another repo is not in an agent's context at the moment it has to be
-followed. This document is about the machinery behind that sentence: where the copy comes from,
-how it changes, and how a wrong copy is caught.
+What this repository places in every managed project's tree, and what keeps those copies honest.
+The documents are not among them: a project stands on the corpus by
+[reference](references.md), declaring the release it holds to, and holds no copy. What is
+distributed is the handful of files another party reads at a fixed path in each repository —
+GitHub reading a licence at the root, an action reading a workflow — where a reference cannot
+stand in for the file. The process around this machinery — intake, the amendment pass, the
+release — is [release-cycle](release-cycle.md)'s; the tools that run it are [org](org.md)'s.
 
 ## The vendored set
 
-The corpus is more than the guides, and not all of it sits under `docs/org/` — some members are
-effective only at the conventional path other tooling reads:
-
 | Member | Lands at | Form |
 |---|---|---|
-| Every specification in the root — `docs/index.md` is the project's own map, not a member | `docs/org/` | Byte-identical |
 | `LICENSE`, `LICENSE-APACHE`, `LICENSE-MIT` | the repository root | Byte-identical — the pointer is worded without a repo name, and the MIT holder line is the one org-wide holder |
 | The CLA workflow | `.github/workflows/cla.yml` | Byte-identical, including its skip-on-private guard |
 | The shared `CONTRIBUTING.md` sections — CLA, licensing of contributions, commit identity | inside the project's own `CONTRIBUTING.md` | The one member that is not a whole file; see open questions |
 
 One rule covers them all: **a fleet whose copies of a legal text or a policy check drift per
-repository has several policies where it means to have one.** The stamp names every vendored
-file wherever it lands, the edit guard refuses every byte-identical path, and the integration
-gate verifies each against the claimed release.
-
-> **A vendored document's relative links resolve inside the vendored set.** The [mechanical
-> checks](../normative.md#mechanical-checks) run every link in every tree, so a copy's link to a
-> file the set does not carry fails in every project that holds it — a proposal, the index, a
-> research note may be cited by name, never by relative link.
+repository has several policies where it means to have one.** Every member is a copy, and a copy
+is sanctioned only where a machine checks it ([links](../normative.md#links)): each is taken from
+the release the project declares, refused at the edit, and verified against that release at
+integration. The set is closed by this table, and a file no row names is the project's own.
 
 ## The copies are ordinary committed files
 
-> **A project's `docs/org/` is tracked content, committed like any other file. It reaches every
-> clone, worktree, and resolution by `git pull` alone — no provisioning step touches it.**
+> **A vendored member is tracked content, committed like any other file. It reaches every clone,
+> worktree, and resolution by `git pull` alone — no provisioning step touches it.**
 
-This is what makes the copies trustworthy in the one dimension that matters most: they are
-always consistent **with the tree they sit in**. A resolution materialized at a commit sees
-exactly the org docs that commit had; a bisect sees the rules in force at each step; a fresh
-clone is complete. Nothing updates under a working tree, because nothing but a commit can change
-what a working tree holds.
-
-Alongside the documents, `docs/org/` carries a version stamp naming the org tag the copies came from
-and listing every vendored file wherever it lands — the members outside `docs/org/` included. The
-stamp is a claim, not a proof — what makes it honest is the check below. The project's
-`docs/index.md` lists `docs/org/` once, by way of that stamp ([location](../normative.md#location)),
-so a sync adds and removes members without touching a file the project owns.
-
-> **Every document in the vendored set carries its home line** — in its
-> [header](../normative.md#header), after the tag line — naming this repository as the original and
-> the issue against `org` as the way to change it.
-
-A reader of a project's copy is the reader that line exists for, and it must reach them through
-the copies being byte-identical — so it is written **in the source**, worded to be true wherever
-the file sits, never injected per copy by the sync tool. An injected banner would be content
-nobody reviewed here, and the one thing the gate could no longer compare exactly.
+A licence that is not in the tree is not a licence GitHub can show, and a workflow that is not in
+`.github/workflows/` does not run: these members exist to be found at their paths by parties that
+read nothing else. Tracked, they are consistent with the tree they sit in — a bisect sees the
+policy in force at each step, and a fresh clone is complete. The record of which release they came
+from is the project's declaration ([references](references.md#the-declaration)): one line,
+project-owned, and the same line the documents resolve through, so there is no second stamp to
+keep beside it.
 
 ## Updating the copy
 
-> **The vendored copy changes only by a commit that rides the project's normal gates.** A
-> periodic CI process in this repository drives those commits for the whole fleet.
+> **The vendored set changes only by a commit that rides the project's normal gates.** This
+> repository's release asks for that commit, by filing the item, in every project that trails.
 
-On a schedule — and on every docs release; a tag push is a release, nothing else is — the process
-walks every managed project and, where the project's stamp trails the latest tag, produces two
-things:
+On a schedule, and on every release ([release-cycle](release-cycle.md#the-release)), the process
+walks every managed project and, where the project's declaration trails the latest release, files
+**the upgrade item** ([norm-flows](norm-flows.md#upgrade)). The project's own flow resolves it into
+one change: the declaration bumped to the release, every reference to this repository rewritten
+at it ([references](references.md#references)), and every vendored member written as that release
+has it. The filing is idempotent per project and release — a project already current gets
+nothing, and one with the item open gets nothing more.
 
-- **The sync change**: the tagged snapshot copied into `docs/org/` with its stamp, opened as an
-  ordinary change that rides the project's own gates and review. Mechanical, byte-exact, and
-  idempotent — a project already current produces nothing.
-- **The reconciliation items**: the project has to *catch up with* the amended rules, not merely
-  hold them. This is the reconciliation pass the normative-docs convention already requires after
-  any amendment, run per project: walk the delta between the old and new rules against the
-  project, and file an item for every gap found — code the new rule now forbids, tools the new
-  contract now binds, project docs the change now contradicts — each carrying the amended
-  document's tag. The pass itself is filed as one item per project, carrying the release notes
-  and every amended document's tag, when a person triggers it for the release (doc-sync);
-  expanding it into the concrete gaps is judgment work, and the project's ordinary resolution
-  flow is what performs it.
-
-The two outputs are deliberately separate: the sync change is never blocked on the
-reconciliation, because a tree holding the new rules with open gap items is the convention's
-normal state, while a tree holding old rules is wrong in a way nothing tracks. **The open sync
-and reconciliation items are the fleet's convergence status** — which projects are behind, and by
-how much, is a label query, not a spreadsheet.
+Catching up with the amended rules, rather than merely declaring them, is the second half of that
+same item ([upgrade](norm-flows.md#upgrade)): the bump lands, and the walk that follows files what
+the tree owes. It never blocks the bump, because the two are sequential steps of one resolution —
+a tree declaring the new release with open gap items is the convention's normal state, while a
+tree declaring an old one is behind in a way only the open upgrade item tracks. **The open upgrade
+items and the gap items they file are the fleet's convergence status** — which projects are
+behind, and by how much, is a label query, not a spreadsheet.
 
 The process may use the network freely; it runs where the network is legitimate. What stays
 hermetic is each project's commit gate.
@@ -98,46 +68,43 @@ hermetic is each project's commit gate.
 
 Two positions, each doing what it is good at:
 
-- **A guard, at the edit.** An agent proposing to modify any vendored path — `docs/org/`, the
-  legal files, the CLA workflow — is refused before it happens, and the refusal carries the
-  whole recovery: *this content comes from `org`; to change it, file an issue against `org`*.
-  The blocked edit is not lost work — its substance becomes the issue's body. Cheap and
-  immediate — and it fails open, which is why it is not the only check.
+- **A guard, at the edit.** An agent proposing to modify a vendored member is refused before it
+  happens, and the refusal carries the whole recovery: *this content comes from `org`; to change
+  it, file an issue against `org`*. The blocked edit is not lost work — its substance becomes the
+  issue's body. Cheap and immediate — and it fails open, which is why it is not the only check.
 - **A gate, at integration.** Where the network is already legitimate, the gate compares every
-  vendored file against the org tag the stamp claims. A copy that does not match its claimed
-  tag — however the edit happened — is **divergence**, and the change is refused.
+  vendored member against the release the project declares. A member that does not match —
+  however the edit happened — is **divergence**, and the change is refused.
 
-**Staleness is never a failure.** A copy that faithfully matches an *older* tag is behind, not
-wrong: being behind is the open sync item's job, and blocking every commit in every project the
-moment a tag lands would make a docs bump a fleet-wide outage. The commit gate does not check
-org content at all — it has no network and needs none, because the edit guard covers the agent
+**Staleness is never a failure.** A member that faithfully matches an *older* declared release is
+behind, not wrong: being behind is the open upgrade item's job, and blocking every commit in every
+project the moment a tag lands would make a release a fleet-wide outage. The commit gate does not
+check members at all — it has no network and needs none, because the edit guard covers the agent
 path and the integration gate covers every path.
 
 ## What this is not
 
-- **Not provisioned.** Provisioning sets up what is deliberately untracked — tools, hooks,
-  arena plumbing. The docs are content, and content moves by commits. A provisioning step that
-  rewrote tracked files would dirty trees it does not own; one that delivered docs outside the
-  tree would put the rules somewhere agents do not read.
+- **Not the documents.** A document is referenced, never copied
+  ([references](references.md#what-a-project-holds)); the members here are the files a reference
+  cannot replace, because their reader is not a person following a citation but a platform
+  reading a path.
+- **Not provisioned.** Provisioning sets up what is deliberately untracked — tools and hooks. A
+  licence is content another party reads from the tree, and content moves by commits.
 - **Not git submodules.** A submodule's content is not in the tree until someone initializes it —
-  absent from a fresh clone, from most tooling's view of the repo, and from the agent context the
-  whole mechanism exists to fill — and it makes every clone and worktree operation
-  two-step. The copies are ordinary tracked files.
+  absent from a fresh clone and from most tooling's view of the repo — and it makes every clone
+  and worktree operation two-step. The members are ordinary tracked files.
 - **Not subtree merges.** A subtree is editable in place, which reintroduces drift, and its merge
   history is noise in every log.
 - **Not fetched at commit time.** The commit gate stays hermetic. The network lives where it
-  already legitimately is: in the sync tool at resolution time, and in the integration gate.
+  already legitimately is: in the sync tool, and in the integration gate.
 
 ## Open questions
 
-- The stamp's form — one file naming the tag, or the tag plus per-file hashes so the integration
-  gate can name exactly which file diverged without a full diff.
-- The label the sync change carries. The reconciliation items carry the amended documents' tags
-  ([reconciliation](../normative.md#reconciliation)), and the pass item carries all of them.
-- The reconciliation pass's shape: one pass item per project per release, or one per amended
-  document.
-- Whether the edit guard's refusal of the vendored paths ships in the shared guard
-  configuration for every project, or each project's own guard seam.
-- How the shared `CONTRIBUTING.md` sections are checked, given they share a file with content
-  the project owns — a marked region the gate compares, or a `CONTRIBUTING.md` split so the
-  shared part is its own vendored file the project's file includes by link.
+- The label the upgrade item carries beside its type. The reconciliation items carry the amended
+  documents' tags ([reconciliation](../normative.md#reconciliation)), and the pass item carries
+  all of them.
+- Whether the edit guard's refusal of the vendored paths ships in the shared guard configuration
+  for every project, or each project's own guard seam.
+- How the shared `CONTRIBUTING.md` sections are checked, given they share a file with content the
+  project owns — a marked region the gate compares, or the shared part becoming a document in this
+  repository that the project's file references.

@@ -3,9 +3,8 @@
 > **Tag:** `normative` — remaining work to complete this document: the query named in
 > `docs/index.md`.
 
-> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document is
-> distributed into each managed project as `docs/org/`. A copy is never edited in place: to
-> change it, file an issue against `org`.
+> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document
+> changes here and nowhere else. To change it, file an issue against `org`.
 
 What makes a document in a managed project binding, what one must contain, and the rules that
 keep two of them from ever disagreeing. Every managed project holds the same documentation
@@ -41,11 +40,11 @@ editing a file the project owns. The index also names the project's status query
 
 ## Header
 
-Every Markdown document under `docs/` — the index excepted — opens with its title and, on the
-line beneath it, the header line its location requires. The location decides; the line restates
-the decision for the reader who arrived by a link rather than by the directory, and it is
-checked against the location ([mechanical checks](#mechanical-checks)) so the two cannot drift.
-One form per location — the root, `proposals/`, `archive/`, `research/`, in that order:
+Every Markdown document under `docs/` — the index excepted — opens with its title and, beneath
+it, the header lines its location requires. The location decides; the lines restate the decision
+for the reader who arrived by a link rather than by the directory, and they are checked against
+the location ([mechanical checks](#mechanical-checks)) so the two cannot drift. One form per
+location — the root, `proposals/`, `archive/`, `research/`, in that order:
 
 ```markdown
 > **Tag:** `<basename>` — remaining work to complete this document: the query named in `docs/index.md`.
@@ -58,15 +57,27 @@ The tag is always the file's basename minus `.md`, so the vocabulary is the dire
 and nothing duplicates it. The query is the project's own — a `gh issue list --label`
 invocation on a GitHub-tracked project — and its exact spelling is stated once, in
 `docs/index.md`, which is why the tag line points there instead of carrying it: a query repeated
-in every header is a copy in every header. Files under `proposals/`, `archive/`, and `research/`
-carry no tag: none of them is something the project owes work against. A document under
-`docs/org/` carries the header it has at its home — the tag line — byte for byte, like the rest
-of it.
+in every header is a copy in every header.
 
-A document that is distributed into other repositories also carries, after its tag line, its
-**home line**: the repository it changes in, and how to ask for the change. A copy's reader is
-the reader that line exists for ([reconciliation](#reconciliation)); its exact wording belongs
-to the home repository's distribution rules.
+**A proposal carries both lines**, the proposal line first and the tag line under it. A document
+that describes an intended end state owes work toward that end state — the rules it has not yet
+decided ([end state](#end-state)) — whether or not it binds anything yet, and the tag is what
+lists that work. The label is made when the proposal is, so the decisions taken while it was a
+draft stay under the same query after [ratification](#lifecycle), and ratification stops being
+the moment a document first becomes something one can ask a question about. `archive/` and
+`research/` carry no tag: one has no remaining work by definition, and the other is an
+assessment rather than an end state to complete. A document under `docs/org/` carries the header
+it has at its home — the tag line and the home line — byte for byte, like the rest of it.
+
+A document that other repositories are held to — every specification in the corpus's home —
+also carries, after its tag line, its **home line**: the repository it changes in, and how to
+ask for the change. A reader who meets the document anywhere but its home is the reader that
+line exists for ([reconciliation](#reconciliation)), so it is written in the source, worded to
+be true wherever the file is read, and never added by whatever delivers the file. One form:
+
+```markdown
+> **Home:** [<owner>/<repository>](<repository url>) — this document changes here and nowhere else. To change it, file an issue against `<repository>`.
+```
 
 ## Sections
 
@@ -106,9 +117,16 @@ specification:
   current.
 - **For the project**: the README's Status section is the one sanctioned home for "how far along
   is this" prose. Nothing else records progress.
-- **Undecided design**: a root document may carry an **Open questions** section, for questions
-  whose answers would change what the specification says. Undecided *time* is not an open
-  question — work merely not done yet is an item carrying the document's tag.
+- **Undecided design**: a question whose answer would change what the specification says is an
+  item carrying the document's tag, like every other piece of remaining work on it
+  ([reconciliation](#reconciliation)) — never a section of prose. A specification that says a
+  thing is undecided is read once and built around, and nothing ever comes back to it; an item is
+  listed by the query the tag line points at, and somebody owns pushing it. So a document plus
+  its open items is the end state, exactly as an implementation plus its gap items is. Undecided
+  *time* is not a question at all — work merely not done yet is an ordinary item under the tag.
+  This holds for a proposal exactly as for a specification: it is an end state under discussion,
+  and what is still being discussed is its remaining work, under its own tag
+  ([header](#header)).
 
 **A rule stated as a blockquote is an invariant**, and the prose under it is why. If the rule
 and the reasoning ever disagree, the rule is what the implementation must satisfy.
@@ -126,6 +144,12 @@ a thing means, what invariant it preserves) in the document that owns the concep
 (its surface, parameters, interactions) in the reference for that surface. Neither restates the
 other, and each links to the other once.
 
+**A document is created only where no existing one is its home**, and the change that creates it
+says which documents were considered and why the fact belongs in neither. A subject that nobody
+owns is the reason to write a document; a subject someone owns is the reason not to, because a
+second document about it is the duplicate this section exists to prevent, arriving at the one
+moment nobody is looking for one.
+
 **A fact whose home is source code stays there.** Prose says where to look, not what it will
 say. And a fact whose home is the org corpus stays there: a project document cites `docs/org/`,
 it does not restate it.
@@ -138,6 +162,11 @@ sanctioned only where a machine checks it: the vendored `docs/org/`, byte-identi
 against its stamp, and named as a copy by its own header; and the [header](#header) line, which
 restates what the directory decided and is checked against it.
 
+A document in another repository is cited by that repository's name and the document's, and a
+section by its slug ([sections](#sections)) — never by a link into a branch, whose target moves
+without any change in the citing tree, and never by a section number. A citation that must be
+re-read whenever the other repository moves is the drift above arriving from the far end.
+
 ## Lifecycle
 
 Three transitions, each one reviewed change:
@@ -146,11 +175,14 @@ Three transitions, each one reviewed change:
   and **written as the specification it would become**. The [end-state](#end-state) voice,
   [one home](#one-home) per fact, and [links](#links) all apply to it,
   because what makes it a proposal is where it sits, not how it is written. Ratifying it is one
-  act: create the label, `git mv` into the root, replace the proposal line with the tag line,
-  move its index entry — the move *is* the decision. The test mirrors the end state's: **a
-  proposal reads identically the day before and the day after it is ratified**, but for its
-  location, its header line, its index entry, and the paths of the relative links the move
-  re-rooted. A proposal that would need rewriting first is not ready, and a rewrite folded into
+  act: `git mv` into the root, delete the proposal line, move its index entry — the move *is*
+  the decision. Nothing else changes: the tag line it already carried stays, its label stays, and
+  the items under that label stay. The test mirrors the end state's: **a proposal reads
+  identically the day before and the day after it is ratified**, but for its location, the
+  proposal line it no longer carries, its index entry, and the paths of the relative links the
+  move re-rooted. Questions still open under its tag do not block the move, any more than they
+  block a specification; what blocks it is text that would need rewriting first, and a question
+  whose answer would rewrite the document is exactly that. A proposal that would need rewriting first is not ready, and a rewrite folded into
   the ratification is a change nobody can diff against what was proposed.
 - **Amendment.** An ordinary reviewed diff, landing **before or with** the change that
   implements it, never after: a specification trailing its implementation has stopped describing
@@ -193,7 +225,14 @@ forbids, spelled from the other end.
 **An item carries what a reader needs to check it in a minute**: the rule — the section, quoted,
 not paraphrased — what fails under it, with evidence the reader can confirm, and what would
 close it: the change to the implementation, or the replacement text, or the statement that the
-item is asking for one. An item that says only that a section should be clearer cannot be
+item is asking for one.
+
+**One item may cover several gaps, and carries every tag it answers to.** The invariant above is
+coverage, not arithmetic: what it forbids is a gap no item names, never gaps that share one. An
+item is sized by the change that closes it — one subject, one resolution — because every item
+costs a plan, a review and a full run of the gates whether it closes a sentence or a section, and
+an item per document is that cost multiplied by the corpus, with an ordering between the pieces
+that nobody chose. An item that says only that a section should be clearer cannot be
 closed by anything checkable.
 
 > **An issue about a document is filed where the document originates.** A defect in a rule, a
@@ -226,8 +265,8 @@ repository's release is what starts it, and each project's tag queries are where
 - Every tracked file under `docs/` is listed in `docs/index.md` ([location](#location)) — and
   **a missing index is a failure, not a pass**: nothing to report and nothing was checked must
   never look alike.
-- The line under every title is the one its location requires ([header](#header)), and a tag
-  names the file it sits in.
+- The line under every title is the one its location requires ([header](#header)), a tag names
+  the file it sits in, and a document that carries a home line carries it in the one form.
 - Every heading below a title is a name in the closed alphabet, unique in its document
   ([sections](#sections)).
 - `docs/org/` is refused at the edit by the guard and verified against its stamp by the
