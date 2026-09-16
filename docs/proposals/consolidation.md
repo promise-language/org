@@ -38,7 +38,9 @@ invisible until someone walks the two against each other.
 - **The norms** — the specifications in the `docs/` root and the vendored corpus
   ([location](../normative.md#location)). `docs/proposals/` is direction, not a measure.
 - **The areas** — the product's surfaces. The pass derives them and the maintainer confirms them
-  at step 12; a wrong list of areas is a wrong pass, so it is the first thing shown.
+  at step 13; a wrong list of areas is a wrong pass, so it is the first thing shown.
+- **Whole or incremental** — whether the pass honours the marks or ignores them
+  ([idempotency](#idempotency)). The first pass in a repository is necessarily whole.
 - **A focus** — an item or an area to start from. A focus orders the reading; it does not narrow
   the scope.
 
@@ -70,6 +72,44 @@ Items in progress, `norm:`-typed items, closed items, and items in other reposit
 - A **closed** item is how the pass checks whether a claim was already answered. It is cited by
   number and evidence, never reopened.
 
+## Idempotency
+
+> **A consolidation run twice with nothing moved in between changes nothing.** The second run
+> reads the marks, finds no arrival and no trigger, and reports that.
+
+Every item the pass decides on comes out carrying a **mark**: the consolidation that last placed
+it. The mark is one value, and what it points at — the mainline commit, the corpus release, and
+the time the pass ran — is recorded once on the pass's own item rather than copied onto every
+item it touched ([one home](../normative.md#one-home)). Between them they answer the only
+question a later pass has about an item: which world was this judged against, and has that world
+moved.
+
+An item carries no mark until a pass has placed it, so the mark's presence is the partition:
+
+- **A new arrival** carries none. It gets the whole treatment — checked against the norms and the
+  tree, placed in an area, then merged, amended, closed, or kept, like any item in a first pass.
+- **A placed item** carries one. Its placement was decided and approved, and a later pass leaves
+  it alone unless something moved.
+
+> **A placed item is revisited on a trigger, never on a fresh opinion.** The triggers: a rule it
+> quotes was amended since its mark, its area gained an arrival, a claim it makes was answered by
+> work that landed, or a person edited it. Absent one, its outcome is `keep`.
+
+That rule is what makes the pass converge rather than oscillate. Two areas a pass deliberately
+kept separate carry no record of that decision anywhere else, so a second pass holding an opinion
+and no trigger merges them, and a third splits them — churn costing the maintainer an approval
+each time and leaving the backlog no better than the first pass left it. The mark is that
+missing record: it says the placement was decided, and it puts the burden on the next pass to
+name what changed.
+
+**A pass's base is its predecessor's mark.** An incremental run walks the delta — the documents
+amended since the base, the tree's changes since it, the items filed since it — rather than the
+corpus and the backlog whole, and that is what makes a re-run cost a fraction of a first run.
+
+> **A pass may be run whole, ignoring every mark**, and the first pass in a repository is
+> necessarily one. That is how an incomplete walk is repaired, because an incremental pass
+> inherits its predecessor's coverage — including the gaps its predecessor missed.
+
 ## Steps
 
 The kinds are [norm-flows](norm-flows.md#steps)'s, so this converts to a flow without rewriting.
@@ -77,22 +117,23 @@ The kinds are [norm-flows](norm-flows.md#steps)'s, so this converts to a flow wi
 | # | Step | Kind | Next |
 |---|---|---|---|
 | 1 | **Read the norms** — every specification in the `docs/` root and the vendored corpus, whole, before any item; then the proposals, as direction | `read` | 2 |
-| 2 | **Read the direction** — the README's Status section, the project's agent instructions, and the mainline's log since the oldest in-scope item. What changed underneath the backlog is what makes items stale | `read` | 3 |
-| 3 | **Read every item** — in scope and out, each with its number, title, body, labels, dates, assignee, linked changes, blocks, and every reference it makes to another item | `read` | 4 |
-| 4 | **Build the claim ledger** — one line per distinct claim any in-scope item makes: what is wrong or missing, and which items assert it. It is built before the pass has an opinion about the answer, and step 10 ticks it off | `read` | 5 |
-| 5 | **Name the areas** — the surfaces this product has, from the tree, the documents, and the claim ledger. Every claim lands in exactly one ([areas](#areas)) | `check` | 6 |
-| 6 | **Walk the tree** — check every claim that can be checked: build it, run the gates, run the product. A claim about the tree is a fact rather than a judgment, and staleness is a claim about the tree | `check` | 7 |
-| 7 | **Walk the norms against the tree** — every gap, including those no item names ([gaps nobody filed](#gaps-nobody-filed)) | `check` | 8 |
-| 8 | **Classify** — every in-scope item to exactly one outcome ([outcomes](#outcomes)) | `check` | 9 |
-| 9 | **Draft** — the restructure table, and the full text of every item that survives it ([the proposal](#the-proposal)) | `edit` | 10 |
-| 10 | **Review the draft** — against the ledger and against the norms ([the review](#the-review)) | `check` | 11 where anything is undecided or contradictory, else 12 |
-| 11 | **Ask the batch** — every open question at once, each with its evidence and a recommendation | `ask` | 9 |
-| 12 | **Approve** — the maintainer reads the areas, the table, and the item texts, and says what to change | `converse` | 13 once approved |
-| 13 | **Apply** — in the order that keeps the store consistent at every point ([applying](#applying)) | `file` | 14 |
-| 14 | **Verify the store** — re-read every open item and diff it against the approved table | `check` | 13 on any mismatch, else 15 |
-| 15 | **Report** — what was closed, merged, filed, asked, and left alone; the count before and after | `file` | terminal |
+| 2 | **Read the direction** — the README's Status section, the project's agent instructions, and the mainline's log since the base, or since the oldest in-scope item on a pass run whole. What changed underneath the backlog is what makes items stale | `read` | 3 |
+| 3 | **Read every item** — in scope and out, each with its number, title, body, labels, dates, assignee, linked changes, blocks, the mark it carries, and every reference it makes to another item | `read` | 4 |
+| 4 | **Partition** — the arrivals from the placed items, and of the placed, those a trigger reaches ([idempotency](#idempotency)). A pass run whole takes every item as an arrival. Where nothing is in play, the flow goes to 16 | `check` | 16 where nothing is in play, else 5 |
+| 5 | **Build the claim ledger** — one line per distinct claim the items in play make: what is wrong or missing, and which items assert it. It is built before the pass has an opinion about the answer, and step 11 ticks it off | `read` | 6 |
+| 6 | **Take the areas** — the areas the base pass established, plus what the arrivals need; a pass run whole derives them from the tree, the documents, and the ledger. Every claim lands in exactly one ([areas](#areas)) | `check` | 7 |
+| 7 | **Walk the tree** — check every claim in play that can be checked: build it, run the gates, run the product. A claim about the tree is a fact rather than a judgment, and staleness is a claim about the tree | `check` | 8 |
+| 8 | **Walk the norms against the tree** — every gap, including those no item names ([gaps nobody filed](#gaps-nobody-filed)); the documents amended since the base, or every one on a pass run whole | `check` | 9 |
+| 9 | **Classify** — every item in play to exactly one outcome ([outcomes](#outcomes)) | `check` | 10 |
+| 10 | **Draft** — the restructure table, and the full text of every item that survives it ([the proposal](#the-proposal)) | `edit` | 11 |
+| 11 | **Review the draft** — against the ledger and against the norms ([the review](#the-review)) | `check` | 12 where anything is undecided or contradictory, else 13 |
+| 12 | **Ask the batch** — every open question at once, each with its evidence and a recommendation | `ask` | 10 |
+| 13 | **Approve** — the maintainer reads the areas, the table, and the item texts, and says what to change | `converse` | 14 once approved |
+| 14 | **Apply** — in the order that keeps the store consistent at every point ([applying](#applying)) | `file` | 15 |
+| 15 | **Verify the store** — re-read every open item and diff it against the approved table | `check` | 14 on any mismatch, else 16 |
+| 16 | **Record and report** — write what this pass measured against on its own item — the mainline commit and the corpus release read at step 1, and the time — which is what the next pass takes as its base; then what was closed, merged, filed, asked, and left alone, and the count before and after | `file` | terminal |
 
-> **Nothing is written to the store before step 13.** Steps 1 through 12 produce one document and
+> **Nothing is written to the store before step 14.** Steps 1 through 13 produce one document and
 > one conversation. A pass that had already closed forty items when the maintainer disagreed with
 > its areas cannot be taken back.
 
@@ -132,8 +173,9 @@ by that symptom, and the next person files a second item for the second symptom 
 
 ## Outcomes
 
-Every in-scope item takes exactly one, and each carries a reason a reader can check in a minute
-([reconciliation](../normative.md#reconciliation)).
+Every item in play takes exactly one, and each carries a reason a reader can check in a minute
+([reconciliation](../normative.md#reconciliation)). A placed item no trigger reaches is not in
+play and takes `keep` without being read for an outcome at all ([idempotency](#idempotency)).
 
 | Outcome | When | Carries |
 |---|---|---|
@@ -187,7 +229,7 @@ waits.
 
 ## Gaps nobody filed
 
-Step 7 is half the value of the pass and the half nobody asks for. Each normative document is
+Step 8 is half the value of the pass and the half nobody asks for. Each normative document is
 walked against the tree and what the walk finds is filed, as lines on the area's item or as a new
 one. The backlog is what readers noticed; it is not everything there is.
 
@@ -223,13 +265,16 @@ reads someone else's.
 2. **No contradiction.** Every surviving item is read against the normative documents. A proposed
    item that contradicts a rule is either a misreading or a defect in the rule, and both go to the
    maintainer. **There should be none**, and a pass about to ship one has not finished this step.
-3. **Coverage the other way.** Every gap step 7 found has a line.
+3. **Coverage the other way.** Every gap step 8 found has a line.
 4. **The areas hold.** No item whose lines would make one change touch unrelated work, no defect
    on two items, no area with neither an item nor a reason.
 5. **The store's own invariants.** Blocks carried, tags carried, no surviving item referencing one
    the pass closes, no merge into an in-progress item, no merge that spreads a block.
-6. **The count.** Fewer, larger items is the point; a count that barely moved is said in the
-   report rather than passed over.
+6. **The marks.** Every item still open that the pass decided on carries this pass's mark, and no
+   placed item was revisited without a named trigger. A revisit the pass cannot justify is an
+   opinion, and an opinion is what the mark exists to keep out.
+7. **The count.** Fewer, larger items is the point; a count that barely moved is said in the
+   report rather than passed over — and on an incremental pass it is the expected result.
 
 ## Applying
 
@@ -242,7 +287,10 @@ The order matters, because the store is readable by other people at every moment
 4. Record the blocks on the targets.
 5. Close the absorbed items last, each with a comment naming the item and the line that now
    carries it, or the reason and the evidence.
-6. No item is deleted, and no closed item is edited.
+6. Mark every item still open that this pass decided on, arrivals and placed alike, and mark them
+   last. A pass that failed halfway leaves its unmarked items to be taken as arrivals by the next
+   one, which is the direction that costs a re-read rather than a missed judgment.
+7. No item is deleted, and no closed item is edited.
 
 ## The item store
 
@@ -257,6 +305,8 @@ The pass is identical on both; only these phrases differ.
 | Amend | `gh issue edit` | the tracker's update call |
 | Close | `gh issue close` with a comment | update to done or wontfix, with a note |
 | Ask | the flow's question sentinel in the final message, carrying the evidence and the recommendation | the tracker's question call |
+| Mark | a `Consolidated: <pass>` line in the body's footer, beside the numbers the item absorbed | a field of the item's own, or a note in the one form |
+| Edited since | the item's update time against the base's time | the same |
 
 Where a person is running the pass interactively and watching it, the question is put to them
 directly and no sentinel is needed.
@@ -270,18 +320,24 @@ directly and no sentinel is needed.
   [norm-flows](norm-flows.md) beside the norm types or in a document of its own, given that a
   consolidation carries no change to a normative document and that document's boundary rule
   excludes it; where the prompt text lives once the flow exists, and whether this document is the
-  prompt's source or its sibling; which steps a flow may run unattended, given that step 12 is a
+  prompt's source or its sibling; which steps a flow may run unattended, given that step 13 is a
   `converse` and no flow runs one today; and whether a pass may run over one area rather than the
   whole backlog, which would break the coverage half of the invariant.
 - **Area sizing against item sizing.** [Reconciliation](../normative.md#reconciliation) sizes an
   item by the change that closes it — one subject, one resolution. An area item is deliberately
   larger: it holds a surface across several changes. Either that rule gains the area as the unit
   for a standing item, or this document states an exception it has no authority to state.
+- **Whole against incremental.** An incremental pass inherits its predecessor's coverage, gaps
+  included, and its trigger set is a judgment rather than a computation: a change that would
+  alter a placement but matches no trigger is missed, and the miss persists across every
+  incremental pass after it. What decides when a whole pass is due — a count of incremental runs,
+  a corpus release, a period, or a person's call — is undecided, and so is whether a mark should
+  expire on its own.
 - **Cadence and cost.** On a rhythm, on a threshold of open items, before each release, or on
-  demand. A pass reads the whole corpus and the whole backlog, so who pays decides how often it
-  runs.
+  demand. A first pass reads the whole corpus and the whole backlog, so who pays decides how
+  often that one runs; an incremental pass is cheap enough that the answer may differ.
 - **Unattended filing.** Whether a pass may file a `norm: request` at another repository without
-  asking, or every outbound request goes in the batch at step 11.
+  asking, or every outbound request goes in the batch at step 12.
 - **The in-progress edge.** An in-progress item the pass finds is the area's item: whether it says
   so and stops, or may amend the others to point at it.
 - **What the name leaves out.** Consolidation says merging and not the refresh or the coverage
