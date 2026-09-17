@@ -7,10 +7,11 @@ package common
 //
 // The reading end is not in this repository — the guard is a workspace tool,
 // built and owned there (§1), and this repo cannot import it. What the two
-// ends share is the record's location and format, not code: one git tree
-// object id, newline terminated, at the path below. Spelling it wrong here is
-// a permanent, silent refusal — verify writes one path, the guard reads
-// another and always finds it absent — so it is a constant, named once.
+// ends share is the record's location and format: one git tree object id,
+// newline terminated, at primitives.VerifiedTreeRecord. Spelling it wrong here
+// is a permanent, silent refusal — verify writes one path, the guard reads
+// another and always finds it absent — so both ends import the one constant
+// forge holds rather than typing the path out.
 //
 // Without this end, every commit in this checkout is refused: nothing ever
 // blesses a tree, and the guard's named recovery ("run bin/verify") cannot
@@ -23,17 +24,15 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-)
 
-// verifiedTreeRecord is where verify records the tree it blessed, in the
-// gitignored per-checkout .workspace/ directory.
-const verifiedTreeRecord = ".workspace/verified-tree"
+	"github.com/promise-language/forge/primitives"
+)
 
 // clearVerifiedTree removes the record. Verify calls it before its first step
 // so a run that dies mid-way leaves nothing blessed and an in-flight verify
 // blesses nothing. An absent record is not an error.
 func clearVerifiedTree(repoRoot string) error {
-	err := os.Remove(filepath.Join(repoRoot, filepath.FromSlash(verifiedTreeRecord)))
+	err := os.Remove(filepath.Join(repoRoot, filepath.FromSlash(primitives.VerifiedTreeRecord)))
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
@@ -111,7 +110,7 @@ func recordVerifiedTree(repoRoot string) error {
 		os.Remove(tmp.Name())
 		return err
 	}
-	if err := os.Rename(tmp.Name(), filepath.Join(repoRoot, filepath.FromSlash(verifiedTreeRecord))); err != nil {
+	if err := os.Rename(tmp.Name(), filepath.Join(repoRoot, filepath.FromSlash(primitives.VerifiedTreeRecord))); err != nil {
 		os.Remove(tmp.Name())
 		return err
 	}

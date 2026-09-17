@@ -5,6 +5,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/promise-language/forge/primitives"
 )
 
 type step struct {
@@ -31,7 +33,7 @@ func RunVerify(repoRoot string, args []string) error {
 	// A stale blessing left behind is the one outcome the verified-tree check
 	// must never produce, so failing to clear fails the run outright.
 	if err := clearVerifiedTree(repoRoot); err != nil {
-		return fmt.Errorf("clearing %s: %w", verifiedTreeRecord, err)
+		return fmt.Errorf("clearing %s: %w", primitives.VerifiedTreeRecord, err)
 	}
 	return runVerifySteps(repoRoot, verifyPipeline(repoRoot))
 }
@@ -113,7 +115,7 @@ func verifySteps(repoRoot string) []step {
 // runAllModules runs `go <verb> ./...` in every module of the repository.
 func runAllModules(repoRoot, verb string) error {
 	for _, dir := range modules(repoRoot) {
-		if err := RunIn(dir, "go", verb, "./..."); err != nil {
+		if err := primitives.RunIn(dir, "go", verb, "./..."); err != nil {
 			return err
 		}
 	}
@@ -133,7 +135,7 @@ func runAllModules(repoRoot, verb string) error {
 // signal and the exit code carries nothing. The names are printed because
 // "run gofmt" without them leaves the reader to find the files themselves.
 func checkFormatted(repoRoot string) error {
-	out, err := RunOutputIn(repoRoot, "gofmt", "-l", ".")
+	out, err := primitives.RunOutputIn(repoRoot, "gofmt", "-l", ".")
 	if err != nil {
 		return fmt.Errorf("gofmt -l: %w", err)
 	}

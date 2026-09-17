@@ -12,6 +12,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/promise-language/forge/primitives"
 	"org/tools/build/common"
 )
 
@@ -52,7 +53,7 @@ func fail(format string, args ...any) {
 }
 
 func main() {
-	args := common.NormalizeArgs(os.Args[1:])
+	args := primitives.NormalizeArgs(os.Args[1:])
 
 	// --list answers "which gates does this project have?", one name per line
 	// on stdout, exit 0.
@@ -78,7 +79,7 @@ func main() {
 	// prints it to stdout and exits 0. Stdout carries the envelope and nothing
 	// else — a caller redirecting stdout to a parser must get an envelope or
 	// nothing, and "nothing" must not look like success.
-	if common.HasHelpFlag(args) {
+	if primitives.HasHelpFlag(args) {
 		fmt.Fprint(os.Stderr, usage())
 		os.Exit(1)
 	}
@@ -88,7 +89,7 @@ func main() {
 	// measurement that reads like a clean result.
 	name, envelope, err := common.ParseGateArgs(args)
 	if err != nil {
-		fail("%v; run `%s -h` for usage", err, os.Args[0])
+		fail("%v; run `%s -help` for usage", err, os.Args[0])
 	}
 	if !envelope {
 		fail("refusing to measure without --envelope; run `run %s` for a result "+
@@ -98,8 +99,8 @@ func main() {
 	// Stale logic would measure this tree with yesterday's gates and print a
 	// well-formed envelope about it, which is the one failure nothing
 	// downstream could detect.
-	if reason := common.StaleReason(repoRoot, sourceHash); reason != "" {
-		fail("%s — run %s", reason, common.MakeCmd())
+	if reason := primitives.StaleReason(repoRoot, sourceHash); reason != "" {
+		fail("%s — run %s", reason, primitives.MakeCmd())
 	}
 
 	env, err := common.MeasureGate(repoRoot, name)

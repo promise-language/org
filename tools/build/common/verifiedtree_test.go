@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/promise-language/forge/primitives"
 )
 
 // The contract, tested from the recording end: the id verify records must
@@ -181,7 +183,7 @@ func TestRecordIsOneTreeIdNewlineTerminated(t *testing.T) {
 	if err := recordVerifiedTree(dir); err != nil {
 		t.Fatalf("recordVerifiedTree: %v", err)
 	}
-	raw, err := os.ReadFile(filepath.Join(dir, filepath.FromSlash(verifiedTreeRecord)))
+	raw, err := os.ReadFile(filepath.Join(dir, filepath.FromSlash(primitives.VerifiedTreeRecord)))
 	if err != nil {
 		t.Fatalf("read the record: %v", err)
 	}
@@ -206,7 +208,7 @@ func TestClearVerifiedTree(t *testing.T) {
 	if err := clearVerifiedTree(dir); err != nil {
 		t.Fatalf("clearing an existing record: %v", err)
 	}
-	if Exists(record) {
+	if primitives.Exists(record) {
 		t.Error("record should be gone after clear")
 	}
 	if err := clearVerifiedTree(dir); err != nil {
@@ -219,7 +221,7 @@ func TestRecordOutsideGitCheckout(t *testing.T) {
 	if err := recordVerifiedTree(dir); err != nil {
 		t.Fatalf("outside a checkout recording should be a no-op, not an error: %v", err)
 	}
-	if Exists(filepath.Join(dir, ".workspace", "verified-tree")) {
+	if primitives.Exists(filepath.Join(dir, ".workspace", "verified-tree")) {
 		t.Error("no record should be written outside a git checkout")
 	}
 }
@@ -285,7 +287,7 @@ func TestRunVerifyRedRunLeavesNothingBlessed(t *testing.T) {
 	if err := RunVerify(dir, nil); err == nil {
 		t.Fatal("verify over an unparseable Go file should fail")
 	}
-	if Exists(filepath.Join(dir, ".workspace", "verified-tree")) {
+	if primitives.Exists(filepath.Join(dir, ".workspace", "verified-tree")) {
 		t.Error("a red run must leave nothing blessed — the stale record survived")
 	}
 }
@@ -301,17 +303,17 @@ func TestRunVerifyFailsWhenTheStaleRecordCannotBeCleared(t *testing.T) {
 	// A non-empty directory where the record belongs: os.Remove refuses it, the
 	// one clear failure that is neither "absent" nor a permission quirk of the
 	// machine the tests run on.
-	writeFile(t, filepath.Join(dir, filepath.FromSlash(verifiedTreeRecord), "occupied"), "x\n")
+	writeFile(t, filepath.Join(dir, filepath.FromSlash(primitives.VerifiedTreeRecord), "occupied"), "x\n")
 
 	err := RunVerify(dir, nil)
 	if err == nil {
 		t.Fatal("RunVerify passed although the stale record could not be cleared")
 	}
-	if !strings.Contains(err.Error(), verifiedTreeRecord) {
-		t.Errorf("err = %v, want it to name %s", err, verifiedTreeRecord)
+	if !strings.Contains(err.Error(), primitives.VerifiedTreeRecord) {
+		t.Errorf("err = %v, want it to name %s", err, primitives.VerifiedTreeRecord)
 	}
 	// And it stopped there rather than running the pipeline over it.
-	if !Exists(filepath.Join(dir, filepath.FromSlash(verifiedTreeRecord), "occupied")) {
+	if !primitives.Exists(filepath.Join(dir, filepath.FromSlash(primitives.VerifiedTreeRecord), "occupied")) {
 		t.Error("the run went on and disturbed what it could not clear")
 	}
 }

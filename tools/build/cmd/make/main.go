@@ -12,23 +12,23 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 
+	"github.com/promise-language/forge/primitives"
 	"org/tools/build/common"
 )
 
 const usage = `make — the meta-builder.
 
 Usage:
-  ./make [-force | --force] [-h | -help]
+  ./make [-force] [-help]
 
 Compiles every tool under tools/build/cmd into bin/ (stamping each with the
 tools-source hash and repo root) and wires git hooks. Skips the build when
 bin/ is already up to date; -force rebuilds regardless.`
 
 func main() {
-	common.MaybeHelp(os.Args[1:], usage)
+	primitives.MaybeHelp(os.Args[1:], usage)
 	force := false
 	for _, a := range os.Args[1:] {
 		if a == "-force" || a == "--force" {
@@ -46,15 +46,15 @@ func main() {
 	}
 
 	// 2. Hash the tools source — baked into every binary below.
-	hash, err := common.ToolsSourceHash(repoRoot)
+	hash, err := primitives.ToolsSourceHash(repoRoot)
 	must(err)
 
 	// 3. Enable git hooks unconditionally (idempotent, fast).
-	if err := common.RunSetup(repoRoot); err != nil {
+	if err := primitives.RunSetup(repoRoot); err != nil {
 		fmt.Fprintf(os.Stderr, "warning: could not configure git hooks: %v\n", err)
 	}
 
-	tools, err := discoverTools(filepath.Join(repoRoot, "tools", "build", "cmd"))
+	tools, err := common.CommandNames(repoRoot)
 	must(err)
 
 	binDir := filepath.Join(repoRoot, "bin")
@@ -72,9 +72,9 @@ func main() {
 	ldflags := fmt.Sprintf("-s -w -X main.sourceHash=%s -X main.repoRoot=%s", hash, repoRoot)
 	toolsModDir := filepath.Join(repoRoot, "tools", "build")
 	for _, name := range tools {
-		out := filepath.Join(binDir, common.BinaryName(name))
+		out := filepath.Join(binDir, primitives.BinaryName(name))
 		fmt.Printf("building %s\n", name)
-		if err := common.RunIn(toolsModDir, "go", "build",
+		if err := primitives.RunIn(toolsModDir, "go", "build",
 			"-trimpath",
 			"-ldflags", ldflags,
 			"-o", out,
@@ -90,7 +90,7 @@ func main() {
 	sb.WriteString(hash)
 	sb.WriteByte('\n')
 	for _, name := range tools {
-		h, err := fileHash(filepath.Join(binDir, common.BinaryName(name)))
+		h, err := fileHash(filepath.Join(binDir, primitives.BinaryName(name)))
 		if err != nil {
 			fail("hashing %s: %v", name, err)
 		}
@@ -101,28 +101,6 @@ func main() {
 	}
 	must(os.WriteFile(hashFile, []byte(sb.String()), 0o644))
 	fmt.Printf("built %d tool(s) into bin/\n", len(tools))
-}
-
-// discoverTools is the tool set: one tool per directory under
-// tools/build/cmd, except make itself, which runs from source and is never
-// compiled into bin/. The listing IS the registry — there is no list anywhere
-// to keep in step with it, so adding a tool is adding a directory and retiring
-// one is deleting it (retiring `guard` and `precommit` was exactly that).
-//
-// A file under cmd/ is not a tool: `go build ./cmd/<name>` wants a package.
-func discoverTools(cmdDir string) ([]string, error) {
-	entries, err := os.ReadDir(cmdDir)
-	if err != nil {
-		return nil, err
-	}
-	var tools []string
-	for _, e := range entries {
-		if e.IsDir() && e.Name() != "make" {
-			tools = append(tools, e.Name())
-		}
-	}
-	sort.Strings(tools)
-	return tools, nil
 }
 
 func upToDate(hashFile, hash, binDir string, tools []string) bool {
@@ -159,7 +137,7 @@ func upToDate(hashFile, hash, binDir string, tools []string) bool {
 		if !ok {
 			return false // tool not recorded in sidecar
 		}
-		got, err := fileHash(filepath.Join(binDir, common.BinaryName(name)))
+		got, err := fileHash(filepath.Join(binDir, primitives.BinaryName(name)))
 		if err != nil {
 			return false // binary missing or unreadable
 		}
