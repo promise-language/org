@@ -78,7 +78,16 @@ func recordVerifiedTree(repoRoot string) error {
 	// it is not; it matches on rules alone, so the path need not exist yet and
 	// a refusal here has written nothing. A genuine git failure lands in the
 	// same branch, and deliberately: the recovery a reader needs is the same.
-	if _, err := gitWithIndex(repoRoot, "", "check-ignore", "-q", "--", scratchRel); err != nil {
+	//
+	// What is asked about is a file inside the directory, not the directory
+	// itself. A `.home/tmp/` rule ignores only a directory, and git decides
+	// that by looking: asked about `.home/tmp` before anything has created it,
+	// it answers "not ignored" and a fresh clone is refused for a rule that
+	// does ignore it. Every leading component of a longer path is a directory
+	// by construction, so the question is answered about the path actually
+	// written — one temp index inside one per-run directory.
+	probe := scratchRel + "/verified-tree-run/index"
+	if _, err := gitWithIndex(repoRoot, "", "check-ignore", "-q", "--", probe); err != nil {
 		return fmt.Errorf("%s is not ignored by this checkout: the temporary index written there would "+
 			"land in the blessed tree and every commit would then be refused — add .home/ to .gitignore", scratchRel)
 	}

@@ -260,6 +260,34 @@ func TestRecordRefusesWhenScratchIsNotIgnored(t *testing.T) {
 	}
 }
 
+// A DIRECTORY-ONLY RULE IGNORES THE SCRATCH DIRECTORY AND IS NOT A REFUSAL.
+// `.home/tmp/` matches a directory and nothing else, and git decides what is a
+// directory by looking: in a fresh clone nothing has created .home/tmp yet, so
+// asked about that path alone git answers "not ignored" and the first
+// bin/verify of the clone fails, naming a .gitignore change the checkout does
+// not need. Asked about a file inside it — the temp index, which is what
+// `git add -A` would actually stage — the leading components are directories
+// by construction and the rule matches.
+func TestRecordAcceptsADirectoryOnlyIgnoreRule(t *testing.T) {
+	dir := verifyRepoForTest(t)
+	writeFile(t, filepath.Join(dir, ".gitignore"), ".workspace/\n.home/tmp/\n")
+	writeFile(t, filepath.Join(dir, "a.txt"), "a\n")
+	if primitives.Exists(filepath.Join(dir, ".home")) {
+		t.Fatal("the fixture already holds the scratch directory: this is the fresh-clone case")
+	}
+
+	if err := recordVerifiedTree(dir); err != nil {
+		t.Fatalf("a checkout that does ignore %s was refused: %v", scratchRel, err)
+	}
+	// And the tree it blessed is still the one `git add -A` stages, so the
+	// temp index the rule ignores stayed out of it.
+	git(t, dir, "add", "-A")
+	staged := git(t, dir, "write-tree")
+	if got := recordedTree(t, dir); got != staged {
+		t.Errorf("recorded %s, but git add -A stages %s — the two ends disagree", got, staged)
+	}
+}
+
 func TestRecordFailsWhenScratchCannotBeCreated(t *testing.T) {
 	dir := verifyRepoForTest(t)
 	writeFile(t, filepath.Join(dir, "a.txt"), "a\n")
