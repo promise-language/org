@@ -224,10 +224,26 @@ An arena's record is `.workspace/arena.json` in its checkout:
 > arena's record, and only a guest's creator writes a guest's. A program that finds no record
 > reports the thing as unknown, and never creates an id for it.
 
-A program in an arena writes nothing outside its checkout — workspace's `docs/tooling.md`, *An
-agent writes only where it is working* — so it could not create a host record even if it would.
-And a program that created an id wherever it found none would give the host a second identity,
-which the next such program would replace with a third.
+> **A project or workspace tool running in an arena writes nothing outside its checkout.** Tools
+> run concurrently in many arenas on one machine, and two of them writing the same path outside
+> their checkouts overwrite each other's work with neither able to tell (workspace's
+> `docs/tooling.md`, *An agent writes only where it is working*).
+
+> **Infrastructure those tools share may write to a shared location outside every checkout, and
+> only where all three hold:**
+>
+> - **a binding norm defines it**: the location, its layout, and every write made to it;
+> - **concurrent writes are safe by construction**: no two writers ever write the same file, whatever
+>   else runs at the same moment;
+> - **one reusable library per language implements the writing**, and every program that writes
+>   there uses it. Writing there any other way is a defect.
+>
+> The [log home](logging.md#where-a-log-is-written) is such a location. The host home's record is
+> not: provisioning alone writes it.
+
+So a tool in an arena could not create a host record even if it would. And a program that created
+an id wherever it found none would give the host a second identity, which the next such program
+would replace with a third.
 
 ## Creating an identity
 
