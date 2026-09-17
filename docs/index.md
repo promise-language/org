@@ -37,6 +37,10 @@ tree's own compliance gaps; in a project's copy, that project's compliance work.
   repository's open items into one item per area of the product, current against the norms.
 - [proposals/distribution.md](proposals/distribution.md) — The files this repository places in
   every managed project's tree, and what keeps those copies honest.
+- [proposals/identity.md](proposals/identity.md) — What names a host, a guest, an arena, a tool
+  and a process, and how each identity is created.
+- [proposals/logging.md](proposals/logging.md) — How the development tools and the orchestration
+  system log: the line, where it is written, its bounds, and the path to one store for the fleet.
 - [proposals/norm-flows.md](proposals/norm-flows.md) — The item types that carry a change to a
   normative document, and the steps each one runs.
 - [proposals/org.md](proposals/org.md) — `bin/org`: what carries a release to every project that
