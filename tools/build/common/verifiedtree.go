@@ -28,6 +28,12 @@ import (
 	"github.com/promise-language/forge/primitives"
 )
 
+// scratchRel is the checkout's per-clone scratch directory, where the
+// temporary index recordVerifiedTree stages into is created. Slash separated
+// and relative to the repository root, the form both git and a .gitignore
+// entry take; a caller joins it with filepath.FromSlash.
+const scratchRel = ".home/tmp"
+
 // clearVerifiedTree removes the record. Verify calls it before its first step
 // so a run that dies mid-way leaves nothing blessed and an in-flight verify
 // blesses nothing. An absent record is not an error.
@@ -52,6 +58,13 @@ func clearVerifiedTree(repoRoot string) error {
 // not yet committed and keeps one just `git rm --cached`ed — recording a tree
 // no `git add -A` can stage, a mismatch re-running verify cannot repair.
 //
+// That index lives under the checkout's own scratch directory, scratchRel,
+// because a tool running in an arena writes nothing outside its checkout
+// (identity.md, Where records are kept) — the system temporary directory is
+// one path every arena on the machine would write. The directory must be
+// ignored by the checkout, or the index file is staged into the very tree it
+// is computing, so that is checked before anything is created.
+//
 // Outside a git checkout, recording is a reported no-op rather than a verify
 // failure: there is no commit to gate there, and the guard still refuses on
 // the absent record.
@@ -61,7 +74,19 @@ func recordVerifiedTree(repoRoot string) error {
 		return nil
 	}
 
-	tmpDir, err := os.MkdirTemp("", "verified-tree-")
+	// `git check-ignore -q` exits 0 when the path is ignored and non-zero when
+	// it is not; it matches on rules alone, so the path need not exist yet and
+	// a refusal here has written nothing. A genuine git failure lands in the
+	// same branch, and deliberately: the recovery a reader needs is the same.
+	if _, err := gitWithIndex(repoRoot, "", "check-ignore", "-q", "--", scratchRel); err != nil {
+		return fmt.Errorf("%s is not ignored by this checkout: the temporary index written there would "+
+			"land in the blessed tree and every commit would then be refused — add .home/ to .gitignore", scratchRel)
+	}
+	scratch := filepath.Join(repoRoot, filepath.FromSlash(scratchRel))
+	if err := os.MkdirAll(scratch, 0o755); err != nil {
+		return fmt.Errorf("creating %s: %w", scratch, err)
+	}
+	tmpDir, err := os.MkdirTemp(scratch, "verified-tree-")
 	if err != nil {
 		return fmt.Errorf("creating temp index dir: %w", err)
 	}

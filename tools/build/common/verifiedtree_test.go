@@ -37,15 +37,21 @@ func writeFile(t *testing.T, path, body string) {
 	}
 }
 
+// fixtureIgnores is what every project's committed .gitignore carries for this
+// contract: .workspace/ holds the record (tool-contract §3), and .home/ holds
+// the temporary index that computes it. Stated once, because a test that
+// rewrites .gitignore and drops an entry is testing a checkout no project has.
+const fixtureIgnores = ".workspace/\n.home/\n"
+
 // verifyRepoForTest is a fresh checkout with an identity and the .gitignore
-// every project is required to carry for .workspace/ (tool-contract §3).
+// every project is required to carry.
 func verifyRepoForTest(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
 	git(t, dir, "init", "-q", "-b", "main")
 	git(t, dir, "config", "user.email", "t@example.com")
 	git(t, dir, "config", "user.name", "T")
-	writeFile(t, filepath.Join(dir, ".gitignore"), ".workspace/\n")
+	writeFile(t, filepath.Join(dir, ".gitignore"), fixtureIgnores)
 	return dir
 }
 
@@ -98,7 +104,7 @@ func TestRecordRespectsIgnoreRules(t *testing.T) {
 	// An ignored file stays out; a tracked-but-ignored file stays in — the
 	// reason the temp index is seeded rather than left empty.
 	dir := verifyRepoForTest(t)
-	writeFile(t, filepath.Join(dir, ".gitignore"), ".workspace/\nignored.txt\npinned.txt\n")
+	writeFile(t, filepath.Join(dir, ".gitignore"), fixtureIgnores+"ignored.txt\npinned.txt\n")
 	writeFile(t, filepath.Join(dir, "pinned.txt"), "pinned\n")
 	git(t, dir, "add", "-A")
 	git(t, dir, "add", "-f", "pinned.txt")
@@ -125,7 +131,7 @@ func TestRecordTrackedSetFollowsIndexNotHEAD(t *testing.T) {
 	// record is a tree no `git add -A` can stage — a permanent guard refusal
 	// whose named recovery, re-running verify, reproduces it.
 	dir := verifyRepoForTest(t)
-	writeFile(t, filepath.Join(dir, ".gitignore"), ".workspace/\nadded.txt\ndropped.txt\n")
+	writeFile(t, filepath.Join(dir, ".gitignore"), fixtureIgnores+"added.txt\ndropped.txt\n")
 	writeFile(t, filepath.Join(dir, "dropped.txt"), "dropped\n")
 	git(t, dir, "add", "-A")
 	git(t, dir, "add", "-f", "dropped.txt")
@@ -167,6 +173,113 @@ func TestRecordLeavesIndexAlone(t *testing.T) {
 	after := git(t, dir, "diff", "--cached", "--name-only")
 	if before != after {
 		t.Errorf("recording disturbed the real index: before %q, after %q", before, after)
+	}
+}
+
+// NOTHING IS WRITTEN OUTSIDE THE CHECKOUT. identity.md, Where records are
+// kept: "A project or workspace tool running in an arena writes nothing
+// outside its checkout." The system temporary directory is the one path every
+// arena on the machine shares, so it is the one this recording used to write
+// to — every bin/verify in every arena, with neither able to tell.
+//
+// The check is that recording does not need that directory to exist, not that
+// it leaves it tidy: the temp index was always removed at the end of the call,
+// so a run that had written there is indistinguishable afterwards from one
+// that had not. Pointed at a path that is not there, a recording that reaches
+// for it fails and one that never does passes. A missing directory rather than
+// an unwritable one, because chmod is a permission quirk of the machine the
+// tests run on and is none at all for root. os.TempDir reads TMPDIR everywhere
+// but Windows, where it reads TMP then TEMP, so all three are moved.
+func TestRecordDoesNotReachForTheSystemTempDirectory(t *testing.T) {
+	// The checkout is taken before the environment moves: t.TempDir reads the
+	// same variables, and it must not be sent to the missing path too.
+	dir := verifyRepoForTest(t)
+	missing := filepath.Join(t.TempDir(), "no-such-dir")
+	t.Setenv("TMPDIR", missing)
+	t.Setenv("TMP", missing)
+	t.Setenv("TEMP", missing)
+	writeFile(t, filepath.Join(dir, "a.txt"), "a\n")
+
+	if err := recordVerifiedTree(dir); err != nil {
+		t.Fatalf("recording reached outside the checkout for scratch space: %v", err)
+	}
+	if got := recordedTree(t, dir); len(got) < 40 {
+		t.Errorf("record should hold one tree id, got %q", got)
+	}
+	if primitives.Exists(missing) {
+		t.Errorf("recording created %s — it wrote outside the checkout", missing)
+	}
+}
+
+func TestRecordScratchLivesInsideTheCheckout(t *testing.T) {
+	// The other half of the same rule: the temp index is in the checkout's own
+	// scratch directory, and gone again once the record is written.
+	dir := verifyRepoForTest(t)
+	writeFile(t, filepath.Join(dir, "a.txt"), "a\n")
+
+	if err := recordVerifiedTree(dir); err != nil {
+		t.Fatalf("recordVerifiedTree: %v", err)
+	}
+	scratch := filepath.Join(dir, filepath.FromSlash(scratchRel))
+	entries, err := os.ReadDir(scratch)
+	if err != nil {
+		t.Fatalf("the temp index belongs under %s in the checkout: %v", scratchRel, err)
+	}
+	for _, e := range entries {
+		if strings.HasPrefix(e.Name(), "verified-tree-") {
+			t.Errorf("temp index left behind: %s", filepath.Join(scratch, e.Name()))
+		}
+	}
+}
+
+// A SCRATCH DIRECTORY THE CHECKOUT DOES NOT IGNORE IS REFUSED. `git add -A`
+// walks the worktree, so an unignored temp index stages itself: the blessed
+// tree gains an entry for a file that is deleted moments later, and no later
+// `git add -A` can ever stage that tree again. That is a permanent, silent
+// refusal of every commit whose named recovery — run bin/verify — reproduces
+// it, so it is named at the moment it can still be fixed.
+func TestRecordRefusesWhenScratchIsNotIgnored(t *testing.T) {
+	dir := verifyRepoForTest(t)
+	writeFile(t, filepath.Join(dir, ".gitignore"), ".workspace/\n")
+	writeFile(t, filepath.Join(dir, "a.txt"), "a\n")
+
+	err := recordVerifiedTree(dir)
+	if err == nil {
+		t.Fatal("recording should refuse a checkout that does not ignore the scratch directory")
+	}
+	if !strings.Contains(err.Error(), scratchRel) {
+		t.Errorf("err = %v, want it to name %s", err, scratchRel)
+	}
+	if primitives.Exists(filepath.Join(dir, filepath.FromSlash(primitives.VerifiedTreeRecord))) {
+		t.Error("a refused recording must bless nothing")
+	}
+	// And the refusal came before anything was created, so there is nothing to
+	// clean up and nothing unignored left in the worktree.
+	if primitives.Exists(filepath.Join(dir, ".home")) {
+		t.Error("the refusal created the scratch directory it was refusing to use")
+	}
+}
+
+func TestRecordFailsWhenScratchCannotBeCreated(t *testing.T) {
+	dir := verifyRepoForTest(t)
+	writeFile(t, filepath.Join(dir, "a.txt"), "a\n")
+	// A regular file exactly where the scratch directory belongs: MkdirAll
+	// refuses it, and it is neither "absent" nor a permission quirk of the
+	// machine the tests run on.
+	writeFile(t, filepath.Join(dir, filepath.FromSlash(scratchRel)), "x\n")
+
+	err := recordVerifiedTree(dir)
+	if err == nil {
+		t.Fatal("recording passed although the temp index had nowhere to go")
+	}
+	// The full path, which is what the creation failure names and the
+	// not-ignored refusal does not — so this cannot pass on the other branch.
+	scratch := filepath.Join(dir, filepath.FromSlash(scratchRel))
+	if !strings.Contains(err.Error(), scratch) {
+		t.Errorf("err = %v, want it to name %s", err, scratch)
+	}
+	if primitives.Exists(filepath.Join(dir, filepath.FromSlash(primitives.VerifiedTreeRecord))) {
+		t.Error("a tree nothing could be staged into must not be blessed")
 	}
 }
 
@@ -223,6 +336,11 @@ func TestRecordOutsideGitCheckout(t *testing.T) {
 	}
 	if primitives.Exists(filepath.Join(dir, ".workspace", "verified-tree")) {
 		t.Error("no record should be written outside a git checkout")
+	}
+	// A no-op that leaves a directory behind is not a no-op: the return comes
+	// before the scratch directory is created, not after.
+	if primitives.Exists(filepath.Join(dir, ".home")) {
+		t.Error("a no-op run created the scratch directory")
 	}
 }
 
