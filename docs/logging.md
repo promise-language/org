@@ -1,9 +1,10 @@
 # Logging
 
-> **Proposal.** Not normative: an end state under discussion, binding nothing until ratified.
-
 > **Tag:** `logging` — remaining work to complete this document: the query named in
 > `docs/index.md`.
+
+> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document
+> changes here and nowhere else. To change it, file an issue against `org`.
 
 How the development tools and the orchestration system record what they did: one line format, one
 place for logs on each machine, one set of bounds, and one path from every machine to a store
@@ -54,7 +55,7 @@ form.
 This document does not own:
 
 - the identities a line names, which are [identity](identity.md)'s;
-- stdout and stderr, which are [the CLI guide](../cli-guide.md#output-modes)'s — a log is neither;
+- stdout and stderr, which are [the CLI guide](cli-guide.md#output-modes)'s — a log is neither;
 - a record that decides what happens next, such as a journal, a ledger or a step's result, which
   its owner's specification defines;
 - what a program records beyond the types below, which its own specification defines under
@@ -227,7 +228,7 @@ not arrive, and that is the one kind of loss a store can report instead of hidin
 `process` it is also what identifies a line, so a line delivered twice is kept once.
 
 > **A field is added to a type, never renamed or repurposed, and absent means unknown** — the rule
-> [the CLI guide](../cli-guide.md#output-modes) sets for JSON on stdout, for the same reason: the
+> [the CLI guide](cli-guide.md#output-modes) sets for JSON on stdout, for the same reason: the
 > reader is in another repository.
 
 > **A line is written with a single write, whole, ending in its newline, and a written byte is
@@ -243,7 +244,7 @@ and anything after it is a line still being written.
 > and marks the line with `"truncated": true` in `data`.
 
 > **A line never carries a credential, a token, or the contents of the environment.** A command
-> line is logged, because [the CLI guide](../cli-guide.md#explicit-inputs) has a tool name the
+> line is logged, because [the CLI guide](cli-guide.md#explicit-inputs) has a tool name the
 > source of a secret, never the secret, and whatever reaches a line anyway is [sanitized](#sanitizing-a-line).
 
 ## Sanitizing a line
@@ -420,7 +421,7 @@ A captured stream would log whatever anything printed, at a volume nobody chose:
 a compiler echoing source, a tool repeating a person's words. None of that was reviewed as
 something to keep. A line an author wrote on purpose says what it means, and is reviewed with the
 code that writes it. What a stream carries belongs to whoever reads the stream ([the CLI
-guide](../cli-guide.md#output-modes)). A program that runs unattended writes a message for each
+guide](cli-guide.md#output-modes)). A program that runs unattended writes a message for each
 thing an operator would need to know afterwards.
 
 > **A message has no level.** It is not `debug`, `info`, `warn` or `error`, and no switch turns a
@@ -450,7 +451,7 @@ and `bytes` removed, and `oldest`, the earliest start instant among the files re
 ## Bounds
 
 [Everything a program writes has a
-ceiling](../engineering-guide.md#everything-a-program-writes-has-a-ceiling). These are the ceilings
+ceiling](engineering-guide.md#everything-a-program-writes-has-a-ceiling). These are the ceilings
 for logs.
 
 > **A segment is at most 8 MiB. A process keeps its first segment and its last three.** When a
@@ -509,7 +510,7 @@ It answers, on any machine and in the same way:
 - **a process's ancestors and descendants**, resolved from each process's recorded `ancestors`
   and the [child lines](#child-start-and-child-end) around them.
 
-Its output follows [the CLI guide](../cli-guide.md#output-modes): rendered for a person at a
+Its output follows [the CLI guide](cli-guide.md#output-modes): rendered for a person at a
 terminal, and the lines themselves, unchanged, when read by a program. Its command surface is
 workspace's, in its `docs/tool-contract.md`.
 
@@ -615,7 +616,7 @@ A store that shows only the lines it received makes a fleet with a broken shippe
 
 Ninety days covers a condition that develops slowly across releases. It is also a period the
 development fleet's privacy notice can state as a number. [Everything a program writes has a
-ceiling](../engineering-guide.md#everything-a-program-writes-has-a-ceiling) holds for the store
+ceiling](engineering-guide.md#everything-a-program-writes-has-a-ceiling) holds for the store
 as for any other sink. Any bound on its size is declared in its own specification, and that bound
 only ever deletes sooner.
 

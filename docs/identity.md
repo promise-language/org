@@ -1,9 +1,10 @@
 # Identity
 
-> **Proposal.** Not normative: an end state under discussion, binding nothing until ratified.
-
 > **Tag:** `identity` — remaining work to complete this document: the query named in
 > `docs/index.md`.
+
+> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document
+> changes here and nowhere else. To change it, file an issue against `org`.
 
 > **This document identifies the machines and workspaces the Promise language projects are
 > developed on, and nothing else.** It covers the development tools and the orchestration system
@@ -97,7 +98,7 @@ of them; at 128 bits they never meet. Nothing is gained past that, and every log
 
 The kind letter is there so an id read out of context says what it names. An arena's id in a host
 field is then a malformed value that is refused, not a lookup that quietly finds nothing, which is
-[identities are types](../engineering-guide.md#types-and-shape) applied to the text form.
+[identities are types](engineering-guide.md#types-and-shape) applied to the text form.
 
 > **An id never changes and is never reused.** Relabelling, moving and reprovisioning keep it, and
 > nothing creates a second one for a thing that has one. A thing whose record is lost is a new
@@ -189,7 +190,7 @@ place for every program on the machine, which is what lets a program that writes
 program that reads there find each other without being told. An account the platform reports no
 home for has no host home, and a program running under it treats every record as missing.
 
-These are the locations [the CLI guide](../cli-guide.md#configuration) gives a tool's state,
+These are the locations [the CLI guide](cli-guide.md#configuration) gives a tool's state,
 with `promise-language` where a tool's name would be: the host home is state, but the host's and
 not any one tool's. A tool's own state stays where the CLI guide puts it.
 
@@ -277,7 +278,7 @@ Who runs it:
 
 The bare name is the name it dispatched as — `issue`, never `bin/issue` and never
 `workspace-darwin-arm64` — because one image installed under six names is six different tools to
-a person reading what ran. The version is the object [the CLI guide](../cli-guide.md#help-and-version)
+a person reading what ran. The version is the object [the CLI guide](cli-guide.md#help-and-version)
 has every tool print, taken whole: nothing here adds a second spelling of a version.
 
 ## Processes
@@ -319,7 +320,7 @@ nothing about lineage. Nothing can arrive stale or wrong either. A value handed 
 by a shell, copied into an unrelated process, or inherited by a process that was never the sender's
 child. An observation is what the operating system says, and nothing between the two processes can
 change it. It also keeps an environment variable out of every tool's inputs, which is where [the
-CLI guide](../cli-guide.md#explicit-inputs) wants none.
+CLI guide](cli-guide.md#explicit-inputs) wants none.
 
 A chain rather than only the parent, because two processes that record nothing can sit in a row:
 `bin/verify` runs `go test`, which runs a test binary, which runs `bin/gate`. `bin/verify` records
