@@ -232,6 +232,38 @@ func TestRecordScratchLivesInsideTheCheckout(t *testing.T) {
 	}
 }
 
+// EVERY ARENA BUT A FRESH CLONE ALREADY HAS THE SCRATCH DIRECTORY, WITH OTHER
+// TOOLS' SCRATCH IN IT. Every fixture here starts without .home/, so they only
+// ever exercise creating it; the checkout a person or an agent runs bin/verify
+// in has been through a run of something and .home/tmp/ is full. Three things
+// follow, and none of them held before the temp index moved inside the
+// checkout: creating the directory tolerates one already there, what is
+// already in it stays out of the blessed tree now that `git add -A` walks
+// past it, and recording removes its own temp index rather than the directory
+// — clearing the scratch of every other tool in the arena would be a worse
+// failure than the one this change fixed.
+func TestRecordWhenTheScratchDirectoryAlreadyExists(t *testing.T) {
+	dir := verifyRepoForTest(t)
+	writeFile(t, filepath.Join(dir, "a.txt"), "a\n")
+	elsewhere := filepath.Join(dir, filepath.FromSlash(scratchRel), "someone-elses.txt")
+	writeFile(t, elsewhere, "another tool's scratch\n")
+
+	if err := recordVerifiedTree(dir); err != nil {
+		t.Fatalf("recording into a scratch directory that already exists: %v", err)
+	}
+	git(t, dir, "add", "-A")
+	staged := git(t, dir, "write-tree")
+	if got := recordedTree(t, dir); got != staged {
+		t.Errorf("recorded %s, but git add -A stages %s — the two ends disagree", got, staged)
+	}
+	if names := git(t, dir, "ls-tree", "-r", "--name-only", recordedTree(t, dir)); strings.Contains(names, "someone-elses.txt") {
+		t.Errorf("another tool's scratch is in the blessed tree: %q", names)
+	}
+	if !primitives.Exists(elsewhere) {
+		t.Error("recording cleared the whole scratch directory, not just its own temp index")
+	}
+}
+
 // A SCRATCH DIRECTORY THE CHECKOUT DOES NOT IGNORE IS REFUSED. `git add -A`
 // walks the worktree, so an unignored temp index stages itself: the blessed
 // tree gains an entry for a file that is deleted moments later, and no later
@@ -308,6 +340,43 @@ func TestRecordFailsWhenScratchCannotBeCreated(t *testing.T) {
 	}
 	if primitives.Exists(filepath.Join(dir, filepath.FromSlash(primitives.VerifiedTreeRecord))) {
 		t.Error("a tree nothing could be staged into must not be blessed")
+	}
+}
+
+// A RECORDING THAT FAILS PART WAY LEAVES NO TEMP INDEX BEHIND. The removal is
+// deferred, so every other test reaches it on the way out of a call that
+// worked, and moving it to the end of the happy path would fail none of them.
+// The failures are where it earns its keep, and they changed with this fix:
+// a temp index leaked by a failed run used to accumulate in the system
+// temporary directory, which the operating system eventually clears, and now
+// accumulates inside the checkout, in a directory `git add -A` walks, where
+// nothing clears it.
+func TestRecordRemovesTheTempIndexWhenRecordingFails(t *testing.T) {
+	dir := verifyRepoForTest(t)
+	writeFile(t, filepath.Join(dir, "a.txt"), "a\n")
+	// A regular file where the record's own directory belongs. That failure
+	// lands after the temp index has been created and the tree computed, which
+	// is the only stretch of the call where the deferred removal is observable.
+	writeFile(t, filepath.Join(dir, ".workspace"), "x\n")
+
+	err := recordVerifiedTree(dir)
+	if err == nil {
+		t.Fatal("recording passed although the record had nowhere to go")
+	}
+	// Pinned to that failure and not an earlier one, or the temp index this
+	// asserts about would never have been created.
+	if !strings.Contains(err.Error(), ".workspace") {
+		t.Fatalf("err = %v, want the failure that writes the record", err)
+	}
+	scratch := filepath.Join(dir, filepath.FromSlash(scratchRel))
+	entries, readErr := os.ReadDir(scratch)
+	if readErr != nil {
+		t.Fatalf("read %s: %v", scratch, readErr)
+	}
+	for _, e := range entries {
+		if strings.HasPrefix(e.Name(), "verified-tree-") {
+			t.Errorf("a failed recording left its temp index in the checkout: %s", filepath.Join(scratch, e.Name()))
+		}
 	}
 }
 
