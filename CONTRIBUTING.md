@@ -3,10 +3,9 @@
 **org** is part of the **Promise Lang** project, hosted in the `promise-language` organization
 and maintained under Promise Lang LLC.
 
-This repository holds the organization-wide normative documents. A document ratified here is
-vendored into **every managed project's public tree** — so although this repository may be
-private, everything in it is written, licensed, and CLA-covered as if it were public, because
-its contents float into repositories that are.
+This repository holds the organization-wide normative documents. It is public, and a document
+ratified here binds **every managed project** and is read from each of their trees — so
+everything in it is written, licensed, and CLA-covered for that.
 
 ## Contributor License Agreement (CLA) required
 

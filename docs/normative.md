@@ -20,23 +20,22 @@ decided:
 | Location | What a file there is | Binding? |
 |----------|----------------------|----------|
 | `docs/` root | A **specification**: what the project *should* be — the intended end state. | **Yes.** Work that contradicts one stops and is resolved — the document amended, the item adjusted, or the item rejected — never shipped as a quiet deviation. |
-| `docs/org/` | The **organization-wide corpus**, vendored from its home repository. | **Yes.** Never edited in place: it changes at its home, and reaches the project by sync. |
 | `docs/proposals/` | An end state that has **not been ratified** — a draft, an RFC, a direction under discussion. | No. |
 | `docs/archive/` | An end state that has been **superseded or delivered** — kept for history. | No. |
 | `docs/research/` | Background analysis feeding a decision — an assessment, not a design. | No. |
 
-Those five rows are the whole vocabulary. A project may lack `research/` or have an empty
-`archive/`; it may not invent a sixth location or assign one of these a different meaning. The
-corpus's home repository is the one tree with no `docs/org/`: its root *is* the corpus, and it
-is held to every rule here exactly as a project is.
+Those four rows are the whole vocabulary. A project may lack `research/` or have an empty
+`archive/`; it may not invent a fifth location or assign one of these a different meaning.
+
+**The organization's corpus binds every managed project at the release the project declares, and
+reaches it by reference, never by copy** ([references](proposals/references.md)). The corpus's
+home repository is held to every rule here exactly as a project is; its root *is* the corpus.
 
 **`docs/index.md` is the map and the one file in the root that is not a specification.** Every
 tracked file under `docs/` is listed in it, wherever it lives — the section an entry sits under
-is where its binding status is written down. `docs/org/` is listed once, as the directory, by
-way of the **stamp** it carries: the stamp names the release the copies came from and every
-member, so the corpus's map is the corpus's own, and a sync adds and removes members without
-editing a file the project owns. The index also names the project's status query
-([header](#header)), which is the one per-project fact this shared document cannot carry.
+is where its binding status is written down. The index also carries the per-project facts this
+shared document cannot: the project's status query ([header](#header)), and its declaration of
+the releases it stands on ([the declaration](proposals/references.md#the-declaration)).
 
 ## Header
 
@@ -66,8 +65,7 @@ lists that work. The label is made when the proposal is, so the decisions taken 
 draft stay under the same query after [ratification](#lifecycle), and ratification stops being
 the moment a document first becomes something one can ask a question about. `archive/` and
 `research/` carry no tag: one has no remaining work by definition, and the other is an
-assessment rather than an end state to complete. A document under `docs/org/` carries the header
-it has at its home — the tag line and the home line — byte for byte, like the rest of it.
+assessment rather than an end state to complete.
 
 A document that other repositories are held to — every specification in the corpus's home —
 also carries, after its tag line, its **home line**: the repository it changes in, and how to
@@ -151,36 +149,37 @@ second document about it is the duplicate this section exists to prevent, arrivi
 moment nobody is looking for one.
 
 **A fact whose home is source code stays there.** Prose says where to look, not what it will
-say. And a fact whose home is the org corpus stays there: a project document cites `docs/org/`,
-it does not restate it.
+say. And a fact whose home is the org corpus stays there: a project document cites the corpus by
+reference, it does not restate it.
 
 ## Links
 
 Link to the document that owns a fact. If a passage must be edited whenever its target changes,
 it is a copy however it is worded — a paraphrase and a quotation drift identically. A copy is
-sanctioned only where a machine checks it: the vendored `docs/org/`, byte-identical, verified
-against its stamp, and named as a copy by its own header; and the [header](#header) line, which
-restates what the directory decided and is checked against it.
+sanctioned only where a machine checks it: the [header](#header) line, which restates what the
+directory decided and is checked against it.
 
-A document in another repository is cited by that repository's name and the document's, and a
-section by its slug ([sections](#sections)) — never by a link into a branch, whose target moves
-without any change in the citing tree, and never by a section number. A citation that must be
+A document in another repository is cited by a link at the release the citing project declares,
+in the form [references](proposals/references.md#references) gives, and a section by its slug
+([sections](#sections)) — never by a link into a branch, whose target moves without any change in
+the citing tree, and never by a section number. A citation that must be
 re-read whenever the other repository moves is the drift above arriving from the far end.
 
 ## Lifecycle
 
 Three transitions, each one reviewed change:
 
-- **Ratification.** A design begins in `docs/proposals/`, unbound, untagged, freely rewritten —
-  and **written as the specification it would become**. The [end-state](#end-state) voice,
+- **Ratification.** A design begins in `docs/proposals/`, unbound, freely rewritten — and
+  **written as the specification it would become**. The [end-state](#end-state) voice,
   [one home](#one-home) per fact, and [links](#links) all apply to it,
   because what makes it a proposal is where it sits, not how it is written. Ratifying it is one
-  act: `git mv` into the root, delete the proposal line, move its index entry — the move *is*
-  the decision. Nothing else changes: the tag line it already carried stays, its label stays, and
-  the items under that label stay. The test mirrors the end state's: **a proposal reads
-  identically the day before and the day after it is ratified**, but for its location, the
-  proposal line it no longer carries, its index entry, and the paths of the relative links the
-  move re-rooted. Questions still open under its tag do not block the move, any more than they
+  act: `git mv` into the root, delete the proposal line, add the home line where other
+  repositories are held to the root's specifications ([header](#header)), move its index entry —
+  the move *is* the decision. Nothing else changes: the tag line it already carried stays, its
+  label stays, and the items under that label stay. The test mirrors the end state's: **a
+  proposal reads identically the day before and the day after it is ratified**, but for its
+  location, the proposal line it no longer carries, the home line it gains, its index entry, and
+  the paths of the relative links the move re-rooted. Questions still open under its tag do not block the move, any more than they
   block a specification; what blocks it is text that would need rewriting first, and a question
   whose answer would rewrite the document is exactly that. A proposal that would need rewriting first is not ready, and a rewrite folded into
   the ratification is a change nobody can diff against what was proposed.
@@ -229,15 +228,15 @@ item is asking for one.
 
 **One item may cover several gaps, and carries every tag it answers to.** The invariant above is
 coverage, not arithmetic: what it forbids is a gap no item names, never gaps that share one. An
-item is sized by the change that closes it — one subject, one resolution — because every item
-costs a plan, a review and a full run of the gates whether it closes a sentence or a section, and
-an item per document is that cost multiplied by the corpus, with an ordering between the pieces
-that nobody chose. An item that says only that a section should be clearer cannot be
-closed by anything checkable.
+item is sized by area — the surface its gaps are on, as [areas](proposals/consolidation.md#areas)
+defines one — never by the gap or the document that named it, because every item costs a plan, a
+review and a full run of the gates whether it closes a sentence or a surface, and an item per gap
+or per document is that cost multiplied, with an ordering between the pieces that nobody chose.
+An item that says only that a section should be clearer cannot be closed by anything checkable.
 
 > **An issue about a document is filed where the document originates.** A defect in a rule, a
 > change request, an amendment proposal — these go to the repository the document's home line
-> names, never to a project holding a copy.
+> names, never to a project that cites it.
 
 Documents live in many repositories; their meaning must not. What a project files locally under
 a document's tag is only its **own** gaps against it — the compliance work its tree owes. So a
@@ -246,9 +245,9 @@ home repository, the remaining work on the *definition*, together with the home'
 gaps — one tag, because both are remaining work on that document, and a second tag would split
 one status into two queries neither of which is whole; in each project, that project's remaining
 work toward it. An issue filed in the wrong place is invisible to the query that should have
-listed it — the same defect as a fact with two homes. The vendored copies make the wrong place
-the *natural* place: a reader meets the document in the project's tree and files where they
-stand. Such an issue is transferred to the home repository, not worked where it landed — and the
+listed it — the same defect as a fact with two homes. A project makes the wrong place the
+*natural* place: a reader meets the document through the project that cites it, and files where
+they stand. Such an issue is transferred to the home repository, not worked where it landed — and the
 home line is what tells both the reader and the transferrer where that is.
 
 When the corpus is amended, this same pass runs in every project against the delta: the home
@@ -269,8 +268,9 @@ repository's release is what starts it, and each project's tag queries are where
   the file it sits in, and a document that carries a home line carries it in the one form.
 - Every heading below a title is a name in the closed alphabet, unique in its document
   ([sections](#sections)).
-- `docs/org/` is refused at the edit by the guard and verified against its stamp by the
-  integration gate.
+- The declaration, and every reference into another repository, are checked where
+  [the checks](proposals/references.md#the-checks) place them: hermetically at commit, and
+  resolved at their releases at integration.
 
 Everything else here is upheld by review, and the gaps against this document are items carrying
 its tag.

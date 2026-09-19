@@ -7,13 +7,14 @@ does not restate them. It carries only what that shared document cannot: which p
 and its query.
 
 This repository is the **home of the organization-wide corpus**. Every specification in its root
-binds every managed project and is distributed to each as `docs/org/`; the root here *is* the
-corpus, so there is no `docs/org/`, and a rule changes here and nowhere else. How a change
-arrives here and reaches the fleet is [proposals/release-cycle.md](proposals/release-cycle.md).
+binds every managed project, which stands on it by reference at the release it declares
+([proposals/references.md](proposals/references.md)); a rule changes here and nowhere else. How a
+change arrives here and reaches the fleet is [proposals/release-cycle.md](proposals/release-cycle.md).
 
 **The status query.** Every tagged document's header points here for the query that lists its
 remaining work — in this repository, the remaining work on the *definition*, together with this
-tree's own compliance gaps; in a project's copy, that project's compliance work. The query is:
+tree's own compliance gaps; in a project that stands on it, that project's compliance work. The
+query is:
 
 > `gh issue list --label <tag> --state open --limit 200`
 

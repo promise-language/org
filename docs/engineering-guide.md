@@ -13,19 +13,17 @@ lives in the per-language guides — [`engineering-guide-promise.md`](engineerin
 and never contradict it. Its blockquotes are read as [normative.md](normative.md#end-state) says:
 each is an invariant, and the prose under it is why.
 
-## Why this is in the tree
+## How this reaches the agent
 
-A change is made inside a materialized worktree of one repository and nothing else. A rule that
-lives in another repo is not in the agent's context at the moment it has to be followed, so
-referencing it is the same as not having it.
+A change is made inside a materialized worktree of one repository and nothing else, and a rule
+the agent does not read at the moment it has to be followed is a rule it does not have.
 
-**So every repository holds a copy, byte-identical to the source, and machinery keeps it that
-way.** The copy is tracked content that arrives by sync and is never hand-edited: an edit to it
-is refused, and the refusal points at the home repository, which is where a rule changes. The
-rules of the copy — where it sits, how it is listed, how a gap against it is filed — are
-[normative.md](normative.md)'s, and this guide relies on them without restating them. What is
-true only of one project lives in that project's own documents, which cite this one — never in
-edits to the copy.
+**So every repository declares the release of this guide it stands on, and the agent reads the
+guide by following the reference at that release**
+([what a project holds](proposals/references.md#what-a-project-holds)) — one home, and no copy in
+any tree. How a project stands on the corpus and files a gap against it is
+[normative.md](normative.md)'s, and this guide relies on it without restating it. What is true
+only of one project lives in that project's own documents, which cite this one.
 
 ## One obvious way
 
@@ -201,8 +199,7 @@ platform never learns about: a gap is a platform request, not a local problem.
 - **Implement a behaviour once and reuse it.** The minor variations in a copied implementation are
   where the two copies start disagreeing.
 - **Wire types are one shared module used by both sides** — not hand-kept-in-sync copies.
-- **The exception is deliberate vendoring**, as with this document — byte-identical, hash-checked,
-  with its source named.
+- **The exception is deliberate vendoring** — byte-identical, hash-checked, with its source named.
 
 ## Plan first
 
@@ -443,7 +440,8 @@ read.
 
 > **A step prompt cites this document. It does not carry its own copy of the rules.**
 
-That works precisely because the guide is in the tree — the agent resolving an item can read it.
+That works because the guide is one reference away — the agent resolving an item reads it at the
+release its tree declares.
 Prompts stay about the *task*: what this step is for, what its artifact is, what it must not do.
 And most of what a prompt would otherwise repeat should be a mechanical bound instead: a rule that
 could be a bound and is written as a sentence is a rule that will eventually be ignored exactly

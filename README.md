@@ -8,11 +8,10 @@ specific to the BASE model lives in `base`; what is written here binds the whole
 Start at [docs/index.md](docs/index.md), the map of the corpus;
 [docs/normative.md](docs/normative.md) is the rules it is written under.
 
-A specification ratified here reaches each project as a byte-identical copy in that project's
-own tree, `docs/org/`, so the rules are present in an agent's context at the moment they have to
-be followed. A copy is never edited: an edit is refused and points back here, and every copy is
-checked against the release it claims. A rule changes here — by an issue, resolved in the next
-amendment pass and released to the fleet
+A project stands on a release of this corpus by reference: it declares the release in its own
+`docs/index.md`, and an agent reads each rule by following the reference at that release
+([docs/proposals/references.md](docs/proposals/references.md)). A rule changes here and nowhere
+else — by an issue, resolved in the next amendment pass and released to the fleet
 ([docs/proposals/release-cycle.md](docs/proposals/release-cycle.md)).
 
 ## Dev tooling
