@@ -131,17 +131,17 @@ announce is a dependent's stopped upgrade with nothing to read.
 > still says what it said.
 
 > **The corpus is the one exception: what binds is pushed, what is merely cited is pulled.** The
-> corpus's home files the upgrade in every trailing project, and asks each of them to reconcile
-> with the amended rules ([dissemination](release-cycle.md#dissemination)).
+> corpus's home files the upgrade in every trailing project, and the upgrade goes on to reconcile
+> the project with the amended rules ([dissemination](release-cycle.md#dissemination)).
 
-Those are two products and neither stands in for the other. The upgrade moves the declaration and
-the references and nothing else; a project that merges it holds the new rules and has not yet met
-them. The reconciliation item is the request for the judgment the upgrade cannot do: read the
-notes against this tree, and file what now fails. It carries the notes and the amended documents'
-tags, never a list of gaps — the gaps are found in the project, by the project, and each becomes
-its own item under the tag it belongs to. That is also why the upgrade is never blocked on the
-reconciliation: a tree holding the new rules with open gap items is the normal state, and a tree
-holding the old ones is behind in a way nothing tracks.
+One item, two acts, and neither stands in for the other. The bump moves the declaration and the
+references and nothing else; a project that lands it holds the new rules and has not yet met them.
+The walk that follows is the judgment the bump cannot do: read the notes against this tree, and
+file what now fails. The item carries the notes and the amended documents' tags, never a list of
+gaps — the gaps are found in the project, by the project, and each becomes its own item under the
+tag it belongs to. That is also why the bump never waits on the walk: a tree holding the new rules
+with open gap items is the normal state, and a tree holding the old ones is behind in a way nothing
+tracks.
 
 A project trailing the corpus is behind on the rules it is measured against, and its own tag
 queries are meant to state its distance from them — so convergence there is the fleet's business.
@@ -216,11 +216,3 @@ Two positions, each doing what it is good at:
   names, to a document that exists there and a section that exists in it; each declared release
   exists at the repository it names; the visibility rule holds. An unresolvable reference is a
   failure, not a skip: nothing to check and nothing was checked must never look alike.
-
-## Open questions
-
-- **Whether a home's release notes are checkable.** [The two sides](#the-two-sides) makes the
-  notes the one thing standing in for the references a home cannot repair, and nothing verifies
-  that a release which renamed a heading said so. The decision is whether the release step
-  compares the two releases' headings and refuses notes that omit a rename, or whether the notes
-  stay upheld by review like the rest of a document's prose.

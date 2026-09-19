@@ -31,10 +31,19 @@ A step says when the flow reads them and what it does with what it finds.
 
 ## The types
 
-> **An item carries a type, and the type decides its steps.** The type is a required field on
-> every item, not a convention laid over one: an orchestrator that cannot carry it cannot run
-> these flows, and how it stores the field — a field of its own, or a label, as a GitHub
-> repository does — is its own business.
+> **An item's type decides its steps.** The type is a field of the item, not a convention laid
+> over one: an orchestrator that cannot carry it cannot run these flows, and how it stores the
+> field — a field of its own, or a label, as a GitHub repository does — is its own business.
+
+> **The types are a closed set, and each is defined in exactly one normative document**: the
+> `norm:` types here, and `item: consolidation` in [consolidation](consolidation.md). An item
+> with no type is ordinary work on the ordinary route. **A flow handed an item of a type it does
+> not resolve refuses it**, naming the type, and changes nothing about the item.
+
+A flow that took an unknown type for ordinary work would resolve a change to a rule as a change
+to code, through gates and a review that never read the norms, and say nothing. The refusal is
+what makes a type a contract: an item reaches only a flow that knows its steps, and a type no
+document defines is found the first time anything is handed one.
 
 > **Every type here is `norm: <type>`.** The prefix scopes the set to work on the norms, so it
 > collides with nothing an orchestrator already calls a bug or a task, and one prefix lists all
@@ -132,9 +141,8 @@ Seven kinds, and the kind says what a step may touch:
 `converse` is `ask` without the single round trip: the same park for a person's answer, except
 that the answer is not the end of it — the two go back and forth until the topic is settled, and
 only then does the flow move on. What that costs is a person's attention for a stretch rather
-than once, so it wants a surface built for it, and it is the one kind no flow runs unattended
-today. Where a flow reaches one now, a person runs the step and the flow resumes at the step it
-names.
+than once, so it wants a surface built for it. Where a flow has none, a person runs the step,
+and the flow resumes at the step it names.
 
 ## request
 
@@ -257,7 +265,7 @@ flow does before the move is establish that it should ([lifecycle](../normative.
 | 2 | **Is the text settled** — would any open question's answer change what this document says ([end state](../normative.md#end-state)) | `check` | 3 where none would, else 4 |
 | 3 | **Approve the binding** — the maintainer decides that this text should be what every reader is measured against | `ask` | 5 |
 | 4 | **Name what is unsettled** — each question whose answer would rewrite the document, and park until they are decided | `ask` | 2 |
-| 5 | **Move it** — `git mv` into the root, delete the proposal line, move its index entry, and re-root the relative links the move changed; the body is not touched | `edit` | 6 |
+| 5 | **Move it** — `git mv` into the root, delete the proposal line, add the home line where other repositories are held to the root's specifications ([header](../normative.md#header)), move its index entry, and re-root the relative links the move changed; the body is not touched | `edit` | 6 |
 | 6 | **Land** — the gate green, one commit | `land` | 7 |
 | 7 | **Reconcile this tree** — file one `norm: reconciliation` naming the document, which binds now and has never been measured against this tree | `file` | 8 |
 | 8 | **Ask for the release** — file a `norm: release` naming the landed commit, so a dependent can stand on the new specification | `file` | 9 |
@@ -287,14 +295,16 @@ One home, one release, one reviewed change ([references](references.md#reference
 |---|---|---|---|
 | 1 | **Read the notes** — the home's, for the delta between the declared release and the new one | `read` | 2 |
 | 2 | **Bump the declaration** — the home's row, to the new release | `edit` | 3 |
-| 3 | **Rewrite the references** — every one to that home, at the new release; and where the home is the corpus, the vendored members as that release has them ([updating the copy](distribution.md#updating-the-copy)) | `edit` | 4 |
+| 3 | **Rewrite the references** — every one to that home, at the new release | `edit` | 4 |
 | 4 | **Does every reference carry** — each one resolving at the new release | `check` | 6 where they all do, else 5 |
 | 5 | **Ask what became of it** — name each reference that stopped, with what the notes say happened to its target, and the two ways out: repoint it at what now owns the fact, or delete it together with the claim it supports | `ask` | 3 |
-| 6 | **Land** — the gate green, the change opened against the mainline, riding the project's own gates and review | `land` | [reconciliation](#reconciliation) 2 |
+| 6 | **Land** — the gate green, the change opened against the mainline, riding the project's own gates and review | `land` | 7 where a `norm: reconciliation` is open, else [reconciliation](#reconciliation) 2 |
+| 7 | **Hand over the walk** — add the notes to the open `norm: reconciliation`, which walks them with the rest of its subject | `file` | terminal |
 
 The bump lands first and the tree catches up second, on the same item: from step 6 the flow
 continues at the reconciliation's walk, with the notes read at step 1 as its subject, and
-finalizes there. Declaring the new release and meeting it are different work — the first is
+finalizes there — or, where a reconciliation is already open, hands it the notes and finalizes
+([one walk](#reconciliation)). Declaring the new release and meeting it are different work — the first is
 mechanical and the second is judgment — but they are not different items, because nobody needs a
 second filing to be told that a tree which just adopted a rule should be measured against it.
 
@@ -331,7 +341,7 @@ must not fix inline files it rather than carrying a passenger.
 | 2 | **Walk it against the tree** — each document in the subject against the code, the tools, and this project's own documents, collecting every gap | `check` | 3 |
 | 3 | **Walk the open items against it** — an item whose gap the amendment closed is closed, saying which rule went; one quoting a rule that moved or was reworded is repointed at what now carries it; one whose gap still stands is left alone | `file` | 4 |
 | 4 | **Which side is wrong** — for each gap, the tree short of the rule, or the rule short of what is intended ([reconciliation](../normative.md#reconciliation)) | `check` | 5 for the tree's; 6 for the rule's |
-| 5 | **File the gaps** — as items sized to be resolved: gaps one change would close travel together and carry every tag they answer to, and gaps that would make one change touch unrelated work are separate items | `file` | 7 |
+| 5 | **File the gaps** — as items sized by area: a gap on a surface that already has an open item is a line on it, gaps on one surface travel together and carry every tag they answer to, and gaps that would make one change touch unrelated work are separate items | `file` | 7 |
 | 6 | **File at the home** — a `norm: request` carrying the rule quoted, what fails under it, and the replacement text or the request for one | `file` | 7 |
 | 7 | **Finish** — close this item, naming what it filed and what it closed; the gap items are ordinary work from here. An item that arrived here as an upgrade finalizes as one | `file` | terminal |
 
@@ -340,32 +350,25 @@ must not fix inline files it rather than carrying a passenger.
 > revisits them. An item nobody can check is worse than no item: it reads as remaining work, it
 > is cited in reviews, and the first person to act on it does the wrong thing carefully.
 
-> **One reconciliation is open at a time.** A release that finds one already open adds its notes
-> to it rather than filing a second — two walks of one tree would each file items for gaps the
-> other is filing too, and neither would know.
+> **One walk of a tree is open at a time.** An upgrade that finds a `norm: reconciliation`
+> already open adds its notes to that item and finalizes once its bump has landed, rather than
+> walking beside it — two walks of one tree would each file items for gaps the other is filing
+> too, and neither would know.
 
-> **A gap item is sized by the change that would close it, never by the document that named
-> it.** One item may close gaps from several documents and carries all their tags; one document's
-> gaps may be several items. What is fixed is coverage: no gap without an item
-> ([reconciliation](../normative.md#reconciliation)).
+> **A gap item is sized by area, never by the document that named it** ([reconciliation](../normative.md#reconciliation)).
+> One item may close gaps from several documents and carries all their tags; one document's gaps
+> may be several items. What is fixed is coverage: no gap without an item.
 
 Every item costs a whole resolution — a plan, a review, a full run of the gates — so an item
-closing one sentence of one rule spends what an item closing a section spends. Splitting by
+closing one sentence of one rule spends what an item closing a surface spends. Splitting by
 document multiplies that by the corpus and imposes an order nobody chose: two items that must
-edit the same file either wait for each other or collide. Grouping by the change pays the
-overhead once. The bound in the other direction is the ordinary one — an item is one subject
+edit the same file either wait for each other or collide. A gap on a surface that already has an
+open item is a line on that item, so the overhead is paid once per surface. The bound in the other
+direction is the ordinary one — an item is one subject
 ([keep a change to its subject](../engineering-guide.md#keep-a-change-to-its-subject)) — so the
-item is as large as one subject allows and no larger, which is a judgment the walk is in the best
+item is as large as one surface allows and no larger, which is a judgment the walk is in the best
 position to make and the reason this step is not mechanical.
 
-> **A gap the project judges to be a defect in the rule is not worked in the project.** Step 5 is
+> **A gap the project judges to be a defect in the rule is not worked in the project.** Step 6 is
 > the loop closing: the request lands at the home, and the home's next amendment reads it beside
 > every other ([reconciliation in the project](release-cycle.md#reconciliation-in-the-project)).
-
-## Open questions
-
-- What a `converse` step is, exactly, once a flow can run one. The shape is an `ask` in a loop
-  — round after round until the step or the person calls the topic settled — which makes the
-  open part the edges rather than the semantics: what the step is handed to open with, what it
-  returns when the loop ends, whether the artifact is the transcript or something drawn from it,
-  who may declare the topic settled, and what happens to a loop nobody closes.

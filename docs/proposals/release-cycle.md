@@ -6,11 +6,10 @@
 > `docs/index.md`.
 
 How the corpus changes, and how a change reaches the fleet: the loop this repository runs, from
-an issue filed against a rule to the reconciliation items every project receives.
-[References](references.md) owns how a project stands on the corpus, [distribution](distribution.md)
-the files placed in each tree, and [org](org.md) the tools that run it; this document owns
-the process they serve — who acts, on what, in what order — so that a cycle run by hand and a
-cycle run by machine are the same cycle.
+an issue filed against a rule to the upgrade every project receives and the reconciliation it
+runs. [References](references.md) owns how a project stands on the corpus; this document owns the
+process it serves — who acts, on what, in what order — so that a cycle run by hand and a cycle run
+by machine are the same cycle.
 
 ## The loop
 
@@ -21,7 +20,7 @@ Five steps in one direction, each with one actor and one product:
 | **Intake** — a defect or gap in a rule is filed | anyone, from any project | an issue here, carrying the document's tag |
 | **The amendment pass** — every open item is resolved beside every other | the corpus maintainer | one reviewed change amending the documents, and an item for each question it could not decide |
 | **The release** — the amended corpus is tagged | the corpus maintainer | a tag, and release notes stating the delta per document |
-| **Dissemination** — every project receives the release | the release's own flow, through `bin/org` | an upgrade item and a reconciliation item per project |
+| **Dissemination** — every project receives the release | the release's own flow, through `bin/org` | an upgrade item per trailing project |
 | **Reconciliation** — a project catches up with the amended rules | the project | gap items under each document's tag, and the work that closes them |
 
 Nothing in the loop pushes to a project. A project receives proposals — a change riding its
@@ -134,12 +133,12 @@ exactly as a project with open gap items is.
 
 ## Dissemination
 
-Distribution and org's tools own the machinery. The process is one request per trailing project,
-filed by the release itself with nobody else acting:
+The process is one request per trailing project, filed by the release itself with nobody else
+acting:
 
 - **The upgrade item** carries the release notes. The project's own flow resolves it into the
-  change that bumps the declaration, rewrites the references, and writes the vendored members,
-  lands that, and then walks the tree against the notes and files what it owes
+  change that bumps the declaration and rewrites the references, lands that, and then walks the
+  tree against the notes and files what it owes
   ([upgrade](norm-flows.md#upgrade)). A project the release missed is one `org status` reports as
   trailing, and a person files its item.
 - **Adopting and meeting are not two items.** The bump lands before the walk begins, so the tree
@@ -153,20 +152,12 @@ step changes who runs it, never what it does.
 
 ## Reconciliation in the project
 
-The pass item is the project's own work: read the release notes against the tree; file the gaps
-found — code the amended rule now forbids, a tool the amended contract now binds, a project
-document the change now contradicts — as items sized to be resolved rather than one per document
-([reconciliation](../normative.md#reconciliation)), each carrying the tags it answers to; close
-the pass item when the items are filed. The gap items are
-then ordinary work, and the project's tag queries are its distance from the corpus.
+The walk is the project's own work, on the upgrade item that carried the notes: read the release
+notes against the tree; file the gaps found — code the amended rule now forbids, a tool the
+amended contract now binds, a project document the change now contradicts — as items sized by
+area rather than one per document ([reconciliation](../normative.md#reconciliation)), each
+carrying the tags it answers to; the upgrade item finalizes when the items are filed. The gap
+items are then ordinary work, and the project's tag queries are its distance from the corpus.
 
 A gap the project judges to be a defect in the *rule* is not worked in the project. It is filed
 here, and the loop begins again.
-
-## Open questions
-
-- The cadence of the pass and the release — a fixed period, a threshold of open items, or on
-  demand only.
-- Who the corpus maintainer is, and whether the role rotates.
-- Whether the pass item is one per project per release, or one per project per amended document
-  — shared with distribution.

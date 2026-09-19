@@ -46,9 +46,8 @@ ordinary reviewed change, so "managed" is a fact in one place rather than a conv
 
 ## Triggers
 
-> **Only `status` runs on a schedule, because it changes nothing.** `sync` and `reconcile` file
-> items, so each is a step of a release's flow and runs when that step runs
-> ([every change](norm-flows.md#the-types)).
+> **Only `status` runs on a schedule, because it changes nothing.** `sync` files items, so it is a
+> step of a release's flow and runs when that step runs ([every change](norm-flows.md#the-types)).
 
 A schedule that filed items would be an actor nobody named, and the fleet is where that costs
 most: one scheduled mistake arrives in every project at once. Scheduled reporting has the
@@ -77,10 +76,10 @@ gates and review.
 
 ## Open questions
 
-- Whether `sync` and `reconcile` stay commands of this binary or become a library the
-  orchestrator calls at the step. They are run by a step and by nothing else, so the case for a
-  command is that a person resolving the release runs it and can see what it would do; the case
-  against is a surface that exists for one caller.
+- Whether `sync` stays a command of this binary or becomes a library the orchestrator calls at
+  the step. It is run by a step and by nothing else, so the case for a command is that a person
+  resolving the release runs it and can see what it would do; the case against is a surface that
+  exists for one caller.
 - What identity the scheduled report runs as, and where it publishes. The filing commands need
   no answer: they run from the account of whoever is resolving the item, and reach another
   repository with that person's own rights.

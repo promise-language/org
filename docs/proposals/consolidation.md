@@ -26,17 +26,20 @@ nobody can check still reads as remaining work, and the first person to act on i
 thing carefully. **Nothing files the gaps nobody tripped over** — a rule a tree has never met is
 invisible until someone walks the two against each other.
 
-> **A consolidation is not a norm flow.** It carries no change to a normative document, so it is
-> none of [the types](norm-flows.md#the-types) and carries no `norm:` prefix. It is ordinary work
-> on the ordinary route, whose subject happens to be the items themselves.
+> **A consolidation is an item of type `item: consolidation`, and not a norm flow.** It carries no
+> change to a normative document, so it is none of the `norm:` [types](norm-flows.md#the-types).
+> The `item:` prefix scopes the types whose subject is the items themselves, as `norm:` scopes
+> those whose subject is a rule, and this document defines `item: consolidation`: the merge, the
+> refresh, and the coverage walk, which a person filing one gets together.
 
 ## What it is given
 
 - **The repository** — the checkout the pass runs in. Its `git origin` decides the item store.
 - **The item store** — [the item store](#the-item-store) names what differs between them.
 - **In progress** — what marks an item as being worked right now, in that store.
-- **The norms** — the specifications in the `docs/` root and the vendored corpus
-  ([location](../normative.md#location)). `docs/proposals/` is direction, not a measure.
+- **The norms** — the specifications in the `docs/` root ([location](../normative.md#location)),
+  and the corpus at the release the project declares ([the declaration](references.md#the-declaration)).
+  `docs/proposals/` is direction, not a measure.
 - **The areas** — the product's surfaces. The pass derives them and the maintainer confirms them
   at step 13; a wrong list of areas is a wrong pass, so it is the first thing shown.
 - **Whole or incremental** — whether the pass honours the marks or ignores them
@@ -116,7 +119,7 @@ The kinds are [norm-flows](norm-flows.md#steps)'s, so this converts to a flow wi
 
 | # | Step | Kind | Next |
 |---|---|---|---|
-| 1 | **Read the norms** — every specification in the `docs/` root and the vendored corpus, whole, before any item; then the proposals, as direction | `read` | 2 |
+| 1 | **Read the norms** — every specification in the `docs/` root and the corpus at the declared release, whole, before any item; then the proposals, as direction | `read` | 2 |
 | 2 | **Read the direction** — the README's Status section, the project's agent instructions, and the mainline's log since the base, or since the oldest in-scope item on a pass run whole. What changed underneath the backlog is what makes items stale | `read` | 3 |
 | 3 | **Read every item** — in scope and out, each with its number, title, body, labels, dates, assignee, linked changes, blocks, the mark it carries, and every reference it makes to another item | `read` | 4 |
 | 4 | **Partition** — the arrivals from the placed items, and of the placed, those a trigger reaches ([idempotency](#idempotency)). A pass run whole takes every item as an arrival. Where nothing is in play, the flow goes to 16 | `check` | 16 where nothing is in play, else 5 |
@@ -310,51 +313,3 @@ The pass is identical on both; only these phrases differ.
 
 Where a person is running the pass interactively and watching it, the question is put to them
 directly and no sentinel is needed.
-
-## Open questions
-
-- **How this becomes a flow.** Today this is run as a prompt, and the prompt is written as one —
-  second person, instructions rather than an end state. The flow it would become is a type a
-  person files and a step table in [norm-flows](norm-flows.md#steps)' form, which
-  [steps](#steps) already is. Undecided: whether the type is defined in
-  [norm-flows](norm-flows.md) beside the norm types or in a document of its own, given that a
-  consolidation carries no change to a normative document and that document's boundary rule
-  excludes it; where the prompt text lives once the flow exists, and whether this document is the
-  prompt's source or its sibling; which steps a flow may run unattended, given that step 13 is a
-  `converse` and no flow runs one today; and whether a pass may run over one area rather than the
-  whole backlog, which would break the coverage half of the invariant.
-- **Area sizing against item sizing.** [Reconciliation](../normative.md#reconciliation) sizes an
-  item by the change that closes it — one subject, one resolution. An area item is deliberately
-  larger: it holds a surface across several changes. Either that rule gains the area as the unit
-  for a standing item, or this document states an exception it has no authority to state.
-- **Whole against incremental.** An incremental pass inherits its predecessor's coverage, gaps
-  included, and its trigger set is a judgment rather than a computation: a change that would
-  alter a placement but matches no trigger is missed, and the miss persists across every
-  incremental pass after it. What decides when a whole pass is due — a count of incremental runs,
-  a corpus release, a period, or a person's call — is undecided, and so is whether a mark should
-  expire on its own.
-- **Cadence and cost.** On a rhythm, on a threshold of open items, before each release, or on
-  demand. A first pass reads the whole corpus and the whole backlog, so who pays decides how
-  often that one runs; an incremental pass is cheap enough that the answer may differ.
-- **Unattended filing.** Whether a pass may file a `norm: request` at another repository without
-  asking, or every outbound request goes in the batch at step 12.
-- **The in-progress edge.** An in-progress item the pass finds is the area's item: whether it says
-  so and stops, or may amend the others to point at it.
-- **What the name leaves out.** Consolidation says merging and not the refresh or the coverage
-  walk, which is why both are stated at the top rather than left to the name. A person who files
-  one expecting only a merge gets new items back.
-
-## What this asks of the engineering guide
-
-A consolidation repairs a backlog; it does not keep one from re-fragmenting the day after. That
-is a filing rule, and its home is [engineering-guide](../engineering-guide.md) rather than this
-document ([one home](../normative.md#one-home)). The text below is what this proposal asks an
-amendment to carry there, stated once, here, as a request rather than a second definition:
-
-> **Before filing, search the open items for the area.** Where an item already covers it, add a
-> line to that item rather than filing beside it — any item that is open and not being worked may
-> be amended and brought up to the current context. File a new item only where no area covers the
-> claim.
-
-> **File the area, not the incident.** A broad title and one item covering a surface, with the
-> incident as a checklist line under it, over three items covering three symptoms of one defect.
