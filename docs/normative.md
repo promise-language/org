@@ -28,14 +28,14 @@ Those four rows are the whole vocabulary. A project may lack `research/` or have
 `archive/`; it may not invent a fifth location or assign one of these a different meaning.
 
 **The organization's corpus binds every managed project at the release the project declares, and
-reaches it by reference, never by copy** ([references](proposals/references.md)). The corpus's
+reaches it by reference, never by copy** ([references](references.md)). The corpus's
 home repository is held to every rule here exactly as a project is; its root *is* the corpus.
 
 **`docs/index.md` is the map and the one file in the root that is not a specification.** Every
 tracked file under `docs/` is listed in it, wherever it lives — the section an entry sits under
 is where its binding status is written down. The index also carries the per-project facts this
 shared document cannot: the project's status query ([header](#header)), and its declaration of
-the releases it stands on ([the declaration](proposals/references.md#the-declaration)).
+the releases it stands on ([the declaration](references.md#the-declaration)).
 
 ## Header
 
@@ -160,7 +160,7 @@ sanctioned only where a machine checks it: the [header](#header) line, which res
 directory decided and is checked against it.
 
 A document in another repository is cited by a link at the release the citing project declares,
-in the form [references](proposals/references.md#references) gives, and a section by its slug
+in the form [references](references.md#references) gives, and a section by its slug
 ([sections](#sections)) — never by a link into a branch, whose target moves without any change in
 the citing tree, and never by a section number. A citation that must be
 re-read whenever the other repository moves is the drift above arriving from the far end.
@@ -228,7 +228,7 @@ item is asking for one.
 
 **One item may cover several gaps, and carries every tag it answers to.** The invariant above is
 coverage, not arithmetic: what it forbids is a gap no item names, never gaps that share one. An
-item is sized by area — the surface its gaps are on, as [areas](proposals/consolidation.md#areas)
+item is sized by area — the surface its gaps are on, as [areas](consolidation.md#areas)
 defines one — never by the gap or the document that named it, because every item costs a plan, a
 review and a full run of the gates whether it closes a sentence or a surface, and an item per gap
 or per document is that cost multiplied, with an ordering between the pieces that nobody chose.
@@ -269,7 +269,7 @@ repository's release is what starts it, and each project's tag queries are where
 - Every heading below a title is a name in the closed alphabet, unique in its document
   ([sections](#sections)).
 - The declaration, and every reference into another repository, are checked where
-  [the checks](proposals/references.md#the-checks) place them: hermetically at commit, and
+  [the checks](references.md#the-checks) place them: hermetically at commit, and
   resolved at their releases at integration.
 
 Everything else here is upheld by review, and the gaps against this document are items carrying

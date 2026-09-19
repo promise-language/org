@@ -1,9 +1,10 @@
 # Norm Flows
 
-> **Proposal.** Not normative: an end state under discussion, binding nothing until ratified.
-
 > **Tag:** `norm-flows` — remaining work to complete this document: the query named in
 > `docs/index.md`.
+
+> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document
+> changes here and nowhere else. To change it, file an issue against `org`.
 
 Every change to a tree is a flow resolving an item, and changing a rule is no exception: the
 amendment that changes it, the upgrade that adopts a home's release, the reconciliation that
@@ -11,7 +12,7 @@ catches a project up. This document names the item types that carry that work an
 one runs — what a step does, what it decides, and which step follows it.
 
 > **These flows carry a change to a normative document and nothing else**: a specification in a
-> `docs/` root, which [location](../normative.md#location) makes binding, or a proposal written
+> `docs/` root, which [location](normative.md#location) makes binding, or a proposal written
 > as the specification it would become. A defect anywhere else — a README, a research note, a
 > comment, a file nobody is measured against — is an ordinary item on the ordinary route.
 
@@ -26,7 +27,7 @@ own norms and owes no one a release.
 
 What each act *is* belongs to the documents that own it: [release-cycle](release-cycle.md) the
 corpus's loop, [references](references.md) what a home and a dependent owe each other,
-[normative](../normative.md#reconciliation) what any item must carry. Nothing here restates them.
+[normative](normative.md#reconciliation) what any item must carry. Nothing here restates them.
 A step says when the flow reads them and what it does with what it finds.
 
 ## The types
@@ -67,12 +68,12 @@ What a pass cannot decide is a `norm: request` the pass files against its own co
 the decision, its candidates, and the evidence the items it read had gathered. It needs no type
 of its own, because it takes the same steps as any other request: it waits for a pass, a pass
 decides it, and its flow finalizes it. Filing it is what makes a document plus its open items the
-end state ([end state](../normative.md#end-state)) — an undecided question left as prose is read
+end state ([end state](normative.md#end-state)) — an undecided question left as prose is read
 once and built around, while an item is listed by the tag query and somebody owns pushing it.
 
 A **gap item** carries the document's tag and no type. The implementation short of a rule is
 ordinary work on the ordinary route, and it closes when the gap is gone
-([reconciliation](../normative.md#reconciliation)) — the one thing the types above never do is
+([reconciliation](normative.md#reconciliation)) — the one thing the types above never do is
 close it early.
 
 > **Every change to a project comes from a flow step, or from a person.** A project's state is
@@ -150,7 +151,7 @@ A request that the corpus be amended, whatever the reason: a rule that is wrong 
 rule that is missing, a mechanism proposed, a project's wording offered as the norm, a
 dictionary entry. The type says only that something should change; where the filer knows which
 document, the tag says which, and the body says why. It carries what
-[reconciliation](../normative.md#reconciliation) requires — the rule quoted, what fails under it,
+[reconciliation](normative.md#reconciliation) requires — the rule quoted, what fails under it,
 the replacement text or the request for one.
 
 > **A request need not name a document.** A rule nothing states yet has no tag to carry, and
@@ -160,7 +161,7 @@ the replacement text or the request for one.
 Asking the filer to place it first is asking them to know the corpus before they may complain
 about it, which is how a gap goes unreported. What the request must bring is what fails and what
 should be true instead; deciding whose subject that is belongs to the pass, which reads every
-document anyway ([one home](../normative.md#one-home)).
+document anyway ([one home](normative.md#one-home)).
 
 > **A `norm: request` is triaged, never decided on its own.** Its flow places the item and then
 > parks: what the rule should say is decided by the amendment pass, reading it beside every other
@@ -253,7 +254,7 @@ why on each row, and cuts no release.
 ## ratification
 
 A proposal becomes a specification: it binds from the moment it lands in the root, so what this
-flow does before the move is establish that it should ([lifecycle](../normative.md#lifecycle)).
+flow does before the move is establish that it should ([lifecycle](normative.md#lifecycle)).
 
 > **Anyone may ask for a ratification; only the maintainer may approve one.** The party proposing
 > that a text should bind is not the party that decides it binds, and the step that decides names
@@ -262,10 +263,10 @@ flow does before the move is establish that it should ([lifecycle](../normative.
 | # | Step | Kind | Next |
 |---|---|---|---|
 | 1 | **Read the proposal and its items** — the document, and every question still open under its tag | `read` | 2 |
-| 2 | **Is the text settled** — would any open question's answer change what this document says ([end state](../normative.md#end-state)) | `check` | 3 where none would, else 4 |
+| 2 | **Is the text settled** — would any open question's answer change what this document says ([end state](normative.md#end-state)) | `check` | 3 where none would, else 4 |
 | 3 | **Approve the binding** — the maintainer decides that this text should be what every reader is measured against | `ask` | 5 |
 | 4 | **Name what is unsettled** — each question whose answer would rewrite the document, and park until they are decided | `ask` | 2 |
-| 5 | **Move it** — `git mv` into the root, delete the proposal line, add the home line where other repositories are held to the root's specifications ([header](../normative.md#header)), move its index entry, and re-root the relative links the move changed; the body is not touched | `edit` | 6 |
+| 5 | **Move it** — `git mv` into the root, delete the proposal line, add the home line where other repositories are held to the root's specifications ([header](normative.md#header)), move its index entry, and re-root the relative links the move changed; the body is not touched | `edit` | 6 |
 | 6 | **Land** — the gate green, one commit | `land` | 7 |
 | 7 | **Reconcile this tree** — file one `norm: reconciliation` naming the document, which binds now and has never been measured against this tree | `file` | 8 |
 | 8 | **Ask for the release** — file a `norm: release` naming the landed commit, so a dependent can stand on the new specification | `file` | 9 |
@@ -310,7 +311,7 @@ second filing to be told that a tree which just adopted a rule should be measure
 
 > **An upgrade carries nothing else.** Not a gap the new rules opened, not a repair noticed on
 > the way, and not the open items the new rules left stale: those are items of their own ([keep a
-> change to its subject](../engineering-guide.md#keep-a-change-to-its-subject)), and the
+> change to its subject](engineering-guide.md#keep-a-change-to-its-subject)), and the
 > [reconciliation](#reconciliation) is what walks them. A tree that holds the new rules and has
 > not met them is the normal state, and the upgrade carries all of its references or none of
 > them.
@@ -319,7 +320,7 @@ second filing to be told that a tree which just adopted a rule should be measure
 
 > **A `norm: reconciliation` re-establishes one invariant: every gap between a normative document
 > and this tree is covered by an open item carrying that document's tag**
-> ([reconciliation](../normative.md#reconciliation)). It is filed whenever that invariant is in
+> ([reconciliation](normative.md#reconciliation)). It is filed whenever that invariant is in
 > doubt, and its flow is what walks the two against each other.
 
 The gap moves from either side, and the item is the same whichever side moved. **The rules
@@ -340,7 +341,7 @@ must not fix inline files it rather than carrying a passenger.
 | 1 | **Take the subject** — the documents the item names where a person or another flow filed it, and otherwise every specification this tree is held to. An [upgrade](#upgrade) joins at step 2 with the release notes it has already read | `read` | 2 |
 | 2 | **Walk it against the tree** — each document in the subject against the code, the tools, and this project's own documents, collecting every gap | `check` | 3 |
 | 3 | **Walk the open items against it** — an item whose gap the amendment closed is closed, saying which rule went; one quoting a rule that moved or was reworded is repointed at what now carries it; one whose gap still stands is left alone | `file` | 4 |
-| 4 | **Which side is wrong** — for each gap, the tree short of the rule, or the rule short of what is intended ([reconciliation](../normative.md#reconciliation)) | `check` | 5 for the tree's; 6 for the rule's |
+| 4 | **Which side is wrong** — for each gap, the tree short of the rule, or the rule short of what is intended ([reconciliation](normative.md#reconciliation)) | `check` | 5 for the tree's; 6 for the rule's |
 | 5 | **File the gaps** — as items sized by area: a gap on a surface that already has an open item is a line on it, gaps on one surface travel together and carry every tag they answer to, and gaps that would make one change touch unrelated work are separate items | `file` | 7 |
 | 6 | **File at the home** — a `norm: request` carrying the rule quoted, what fails under it, and the replacement text or the request for one | `file` | 7 |
 | 7 | **Finish** — close this item, naming what it filed and what it closed; the gap items are ordinary work from here. An item that arrived here as an upgrade finalizes as one | `file` | terminal |
@@ -355,7 +356,7 @@ must not fix inline files it rather than carrying a passenger.
 > walking beside it — two walks of one tree would each file items for gaps the other is filing
 > too, and neither would know.
 
-> **A gap item is sized by area, never by the document that named it** ([reconciliation](../normative.md#reconciliation)).
+> **A gap item is sized by area, never by the document that named it** ([reconciliation](normative.md#reconciliation)).
 > One item may close gaps from several documents and carries all their tags; one document's gaps
 > may be several items. What is fixed is coverage: no gap without an item.
 
@@ -365,7 +366,7 @@ document multiplies that by the corpus and imposes an order nobody chose: two it
 edit the same file either wait for each other or collide. A gap on a surface that already has an
 open item is a line on that item, so the overhead is paid once per surface. The bound in the other
 direction is the ordinary one — an item is one subject
-([keep a change to its subject](../engineering-guide.md#keep-a-change-to-its-subject)) — so the
+([keep a change to its subject](engineering-guide.md#keep-a-change-to-its-subject)) — so the
 item is as large as one surface allows and no larger, which is a judgment the walk is in the best
 position to make and the reason this step is not mechanical.
 

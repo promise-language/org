@@ -10,9 +10,9 @@ Start at [docs/index.md](docs/index.md), the map of the corpus;
 
 A project stands on a release of this corpus by reference: it declares the release in its own
 `docs/index.md`, and an agent reads each rule by following the reference at that release
-([docs/proposals/references.md](docs/proposals/references.md)). A rule changes here and nowhere
+([docs/references.md](docs/references.md)). A rule changes here and nowhere
 else — by an issue, resolved in the next amendment pass and released to the fleet
-([docs/proposals/release-cycle.md](docs/proposals/release-cycle.md)).
+([docs/release-cycle.md](docs/release-cycle.md)).
 
 ## Dev tooling
 

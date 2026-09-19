@@ -1,9 +1,10 @@
 # Consolidation
 
-> **Proposal.** Not normative: an end state under discussion, binding nothing until ratified.
-
 > **Tag:** `consolidation` — remaining work to complete this document: the query named in
 > `docs/index.md`.
+
+> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document
+> changes here and nowhere else. To change it, file an issue against `org`.
 
 A pass over every open item in one repository. It resolves nothing; it makes the backlog
 resolvable.
@@ -37,7 +38,7 @@ invisible until someone walks the two against each other.
 - **The repository** — the checkout the pass runs in. Its `git origin` decides the item store.
 - **The item store** — [the item store](#the-item-store) names what differs between them.
 - **In progress** — what marks an item as being worked right now, in that store.
-- **The norms** — the specifications in the `docs/` root ([location](../normative.md#location)),
+- **The norms** — the specifications in the `docs/` root ([location](normative.md#location)),
   and the corpus at the release the project declares ([the declaration](references.md#the-declaration)).
   `docs/proposals/` is direction, not a measure.
 - **The areas** — the product's surfaces. The pass derives them and the maintainer confirms them
@@ -53,7 +54,7 @@ invisible until someone walks the two against each other.
 > obvious one-liner found on the way.
 
 A defect the pass discovers is an item like any other ([keep a change to its
-subject](../engineering-guide.md#keep-a-change-to-its-subject)): a pass that repaired code on its
+subject](engineering-guide.md#keep-a-change-to-its-subject)): a pass that repaired code on its
 way past would be unreviewable as either thing, and its repair would collide permanently with
 the same repair landing on its own. The pass may read anything, run the project's own gates and
 tests, and run the product, to check what an item claims. It leaves the tree as it found it.
@@ -83,7 +84,7 @@ Items in progress, `norm:`-typed items, closed items, and items in other reposit
 Every item the pass decides on comes out carrying a **mark**: the consolidation that last placed
 it. The mark is one value, and what it points at — the mainline commit, the corpus release, and
 the time the pass ran — is recorded once on the pass's own item rather than copied onto every
-item it touched ([one home](../normative.md#one-home)). Between them they answer the only
+item it touched ([one home](normative.md#one-home)). Between them they answer the only
 question a later pass has about an item: which world was this judged against, and has that world
 moved.
 
@@ -148,7 +149,7 @@ The kinds are [norm-flows](norm-flows.md#steps)'s, so this converts to a flow wi
 > document's subject, a platform.
 
 An item per change is what a continuously filed backlog already holds, and it is what makes
-resolution expensive. The per-item cost [reconciliation](../normative.md#reconciliation) names —
+resolution expensive. The per-item cost [reconciliation](normative.md#reconciliation) names —
 a plan, a review, a full run of the gates — is paid once per item whether it closes a line or a
 surface, so twelve items against one surface pay it twelve times, in an order nobody chose, with
 two of them colliding in the same file. An area item pays it once, and the person resolving it
@@ -177,7 +178,7 @@ by that symptom, and the next person files a second item for the second symptom 
 ## Outcomes
 
 Every item in play takes exactly one, and each carries a reason a reader can check in a minute
-([reconciliation](../normative.md#reconciliation)). A placed item no trigger reaches is not in
+([reconciliation](normative.md#reconciliation)). A placed item no trigger reaches is not in
 play and takes `keep` without being read for an outcome at all ([idempotency](#idempotency)).
 
 | Outcome | When | Carries |
@@ -196,7 +197,7 @@ play and takes `keep` without being read for an outcome at all ([idempotency](#i
 > evidence or amended to say what is true now. Closing on a hunch is how a real gap leaves the
 > backlog without ever being answered, and an item nobody can check is worse than no item.
 
-> **A gap closes from the side that is wrong** ([reconciliation](../normative.md#reconciliation)).
+> **A gap closes from the side that is wrong** ([reconciliation](normative.md#reconciliation)).
 > The tree short of a rule is an item here. The rule short of what is intended is a `norm:
 > request` at the document's home — never work this repository does, and never a rule this pass
 > relaxes to fit what was built.

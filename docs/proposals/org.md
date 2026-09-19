@@ -7,16 +7,16 @@
 
 `bin/org`: what carries a release to every project that stands on this one, and what may run
 unattended. It syncs no document — a document is referenced at the release a project declares
-([references](references.md)), never copied into it — so what this machinery moves is items, and
+([references](../references.md)), never copied into it — so what this machinery moves is items, and
 the handful of files [distribution](distribution.md) still places in each tree.
 
 The tool lives in this repository's `tools/` and compiles into `bin/` like every other project's
 tooling. A managed project implements none of it, and receives no change from it: what arrives
 in a project is an item, and the project's own flow makes every change that follows
-([norm-flows](norm-flows.md#the-types)).
+([norm-flows](../norm-flows.md#the-types)).
 
 > **Every command that files runs as a step of a release's flow**
-> ([release](norm-flows.md#release)), from the account of whoever is resolving that item, under
+> ([release](../norm-flows.md#release)), from the account of whoever is resolving that item, under
 > the same rule as any other step. `status` changes nothing, so anything may run it, as often as
 > it likes.
 
@@ -33,13 +33,13 @@ exception.
 ## The tool
 
 One binary, `bin/org`, with the closed command set. Every command that files anything is run
-by a step of a release's flow ([release](norm-flows.md#release)); nothing here is an actor of its
+by a step of a release's flow ([release](../norm-flows.md#release)); nothing here is an actor of its
 own:
 
 | Command | Does | Mutates |
 |---|---|---|
-| `org status` | For every managed project: the release it declares, the latest release, and its open `norm: upgrade` and `norm: reconciliation` items — and, where an upgrade is waiting on a person, each reference that stopped it. For every other declared dependency in the fleet, the release the dependent declares beside the latest its home has cut, so a trailing dependent is visible without anything being filed in it ([the two sides](references.md#the-two-sides)). The convergence label query, rendered. | Nothing |
-| `org sync` | For every project whose declaration trails the latest release: make the tags and item types the project lacks, then file the `norm: upgrade` item carrying the release notes. The project's own flow bumps the declaration, rewrites every reference to this repository, writes the vendored members, and then walks its tree against the notes ([norm-flows](norm-flows.md#upgrade)). Idempotent per (project, release) — a current project, or one with the item already open, gets nothing. | Labels, issues |
+| `org status` | For every managed project: the release it declares, the latest release, and its open `norm: upgrade` and `norm: reconciliation` items — and, where an upgrade is waiting on a person, each reference that stopped it. For every other declared dependency in the fleet, the release the dependent declares beside the latest its home has cut, so a trailing dependent is visible without anything being filed in it ([the two sides](../references.md#the-two-sides)). The convergence label query, rendered. | Nothing |
+| `org sync` | For every project whose declaration trails the latest release: make the tags and item types the project lacks, then file the `norm: upgrade` item carrying the release notes. The project's own flow bumps the declaration, rewrites every reference to this repository, writes the vendored members, and then walks its tree against the notes ([norm-flows](../norm-flows.md#upgrade)). Idempotent per (project, release) — a current project, or one with the item already open, gets nothing. | Labels, issues |
 
 The managed-project list is a committed file in this repository — a closed set, extended by an
 ordinary reviewed change, so "managed" is a fact in one place rather than a convention.
@@ -47,7 +47,7 @@ ordinary reviewed change, so "managed" is a fact in one place rather than a conv
 ## Triggers
 
 > **Only `status` runs on a schedule, because it changes nothing.** `sync` files items, so it is a
-> step of a release's flow and runs when that step runs ([every change](norm-flows.md#the-types)).
+> step of a release's flow and runs when that step runs ([every change](../norm-flows.md#the-types)).
 
 A schedule that filed items would be an actor nobody named, and the fleet is where that costs
 most: one scheduled mistake arrives in every project at once. Scheduled reporting has the
@@ -57,7 +57,7 @@ project the release missed, so that a person can file its item.
 > **What is filed is a request, and every judgment it needs happens in the project that receives
 > it.** The item asks a project to adopt the release and then measure itself against it; when
 > that happens, how large the resulting items are, and what a moved reference should now cite are
-> all decided there, by the people who live with the answers ([upgrade](norm-flows.md#upgrade)).
+> all decided there, by the people who live with the answers ([upgrade](../norm-flows.md#upgrade)).
 
 Nothing here decides for a project, and nothing here waits on one either. That is what lets the
 filing be mechanical without being presumptuous: a release asks every trailing project the same
@@ -67,7 +67,7 @@ gates and review.
 ## What it must never do
 
 - **Write to a project's tree.** It files items, and the project's own flow produces every
-  change ([norm-flows](norm-flows.md#the-types)), riding the project's gates and review; the
+  change ([norm-flows](../norm-flows.md#the-types)), riding the project's gates and review; the
   automation holds no authority a contributor lacks.
 - **File a duplicate.** Idempotency is keyed on (project, release) for every item; a rerun after
   a partial failure completes the remainder and repeats nothing.

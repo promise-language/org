@@ -1,16 +1,17 @@
 # References
 
-> **Proposal.** Not normative: an end state under discussion, binding nothing until ratified.
-
 > **Tag:** `references` — remaining work to complete this document: the query named in
 > `docs/index.md`.
+
+> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document
+> changes here and nowhere else. To change it, file an issue against `org`.
 
 How a document in one repository cites a document in another, and what a project holds instead
 of a copy: a declaration of the repositories it stands on and the release of each. One reference
 system for every document in the organization — the corpus this repository holds is one
 dependency in it, declared as any other — and no document exists in two trees.
 
-A fact has one home ([one home](../normative.md#one-home)), and a copy of a document, however it
+A fact has one home ([one home](normative.md#one-home)), and a copy of a document, however it
 is checked, is that fact in a second tree: two versions in every project, the project's own and
 the corpus's beside it, and a reader deciding which is the real one. A reference names the home
 and the release, and puts nothing in a second tree. What an agent must have in its context it
@@ -20,13 +21,13 @@ reads by following the reference, at the release the declaration names.
 
 > **A document is `<repository>/<name>`, and a section is `<repository>/<name>#<slug>`.** The
 > repository is its GitHub name in the organization; the name is the document's basename minus
-> `.md` — its tag, where it has one ([header](../normative.md#header)); the slug is the section's
-> ([sections](../normative.md#sections)).
+> `.md` — its tag, where it has one ([header](normative.md#header)); the slug is the section's
+> ([sections](normative.md#sections)).
 
 `org/normative#reconciliation`, `base/gate-contract#the-exec-line`, `promise/language-design`.
 The name is unique across the repository's `docs/` — root, `proposals/`, `archive/`,
 `research/` — so the identity carries no path and survives the moves the
-[lifecycle](../normative.md#lifecycle) makes: ratifying or retiring a document changes its
+[lifecycle](normative.md#lifecycle) makes: ratifying or retiring a document changes its
 location, its header, and its index entry, and its identity not at all.
 
 Inside a tracked Markdown document a reference is written as a link ([references](#references)),
@@ -50,7 +51,7 @@ the argument the resolver takes.
 ```
 
 The index is the one file in the root that is not a specification and already the home of the
-per-project facts the shared documents cannot carry ([location](../normative.md#location)); a
+per-project facts the shared documents cannot carry ([location](normative.md#location)); a
 second file would be a sixth location. A release is a tag the repository pushed —
 [release-cycle](release-cycle.md#the-release) for this one — never a branch, whose target moves
 with no change in the citing tree, and never a bare commit, which is a release nobody announced
@@ -65,7 +66,7 @@ at releases they cut, and is declared by every project at the release it holds t
 
 > **A reference to another repository's document is a link to that document at the release the
 > declaration names**, and its text is the heading or the phrase the sentence needs
-> ([sections](../normative.md#sections)). The URL carries the repository, the release, the
+> ([sections](normative.md#sections)). The URL carries the repository, the release, the
 > document's path at that release, and the section's slug:
 
 ```markdown
@@ -95,7 +96,7 @@ compares them, where a bare name would have to fetch something to learn anything
 > and names each reference that stopped it, and a person decides.
 
 A reference that cannot be carried forward is the [mechanical
-checks](../normative.md#mechanical-checks)' case exactly: it is repaired by repointing it at
+checks](normative.md#mechanical-checks)' case exactly: it is repaired by repointing it at
 what now owns the fact, or by deleting it together with the claim it supports, and the two are
 not the same decision. Something choosing between them to finish a bump would be answering a
 question about the citing document while doing arithmetic on a URL. So the upgrade is all of the
@@ -105,7 +106,7 @@ meaning anything.
 > **A specification references only specifications.** A proposal may reference a proposal.
 
 A binding document standing on an unratified one lets authority in through a door the
-[location](../normative.md#location) table keeps shut: what binds would depend on what does not. A
+[location](normative.md#location) table keeps shut: what binds would depend on what does not. A
 proposal is under discussion, and so may be what it cites.
 
 ## The two sides
@@ -120,7 +121,7 @@ proposal is under discussion, and so may be what it cites.
 > retired, or renamed. A repository that releases nothing is a repository nothing may cite.
 
 A home renames a heading and repairs every reference in its own tree, because
-[sections](../normative.md#sections) requires it; the references it cannot repair are the ones
+[sections](normative.md#sections) requires it; the references it cannot repair are the ones
 in other repositories, and it does not know where they are. The notes are the whole mechanism
 that stands in for that: a dependent's upgrade stops on exactly the changes named above, and the
 notes are where it finds what the reference should say instead. A rename a release does not
@@ -167,7 +168,7 @@ like a working one, and announces a path it cannot show.
 forge cites workspace's tool contract and workspace cites forge's tooling; each does so at a
 release the other already cut, and each upgrades its declaration when it chooses, never both in
 one step. What a graph rule would guard against — one fact defined in two places, each in terms
-of the other — is [one home](../normative.md#one-home)'s rule already: the model in the document
+of the other — is [one home](normative.md#one-home)'s rule already: the model in the document
 that owns the concept, the contract in the reference for the surface, each linking to the other
 once. A reader following a chain may arrive at an older release of a document than the one they
 left, because a document's references resolve through its own repository's declaration at the
@@ -199,7 +200,7 @@ files on disk. Following the reference costs one call, and an agent that is runn
 network already — it needs it to think. So a step prompt cites `org/engineering-guide`, the
 agent's first act is to read it, and what it reads is the release its tree declares. To learn what
 a repository holds, the resolver returns its `docs/index.md` at the declared release: the map,
-one line per document with its binding status ([location](../normative.md#location)). A
+one line per document with its binding status ([location](normative.md#location)). A
 repository not yet declared gets its row first, and finding its latest release is the resolver's
 other network act. Whatever the resolver keeps between calls is its own affair and no rule's
 subject: nothing lists it, nothing edits it, and nothing is checked against it.
@@ -210,7 +211,7 @@ Two positions, each doing what it is good at:
 
 - **At commit, hermetic.** The declaration parses; every cross-repository link names a declared
   repository and carries exactly the release declared for it, with no branch and no bare commit;
-  every relative link resolves ([mechanical checks](../normative.md#mechanical-checks)). Nothing
+  every relative link resolves ([mechanical checks](normative.md#mechanical-checks)). Nothing
   is fetched, so nothing here says a target exists — that is the next position's.
 - **At integration, where the network is legitimate.** Every reference resolves, at the release it
   names, to a document that exists there and a section that exists in it; each declared release

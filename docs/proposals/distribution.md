@@ -7,11 +7,11 @@
 
 What this repository places in every managed project's tree, and what keeps those copies honest.
 The documents are not among them: a project stands on the corpus by
-[reference](references.md), declaring the release it holds to, and holds no copy. What is
+[reference](../references.md), declaring the release it holds to, and holds no copy. What is
 distributed is the handful of files another party reads at a fixed path in each repository —
 GitHub reading a licence at the root, an action reading a workflow — where a reference cannot
 stand in for the file. The process around this machinery — intake, the amendment pass, the
-release — is [release-cycle](release-cycle.md)'s; the tools that run it are [org](org.md)'s.
+release — is [release-cycle](../release-cycle.md)'s; the tools that run it are [org](org.md)'s.
 
 ## The vendored set
 
@@ -36,7 +36,7 @@ A licence that is not in the tree is not a licence GitHub can show, and a workfl
 `.github/workflows/` does not run: these members exist to be found at their paths by parties that
 read nothing else. Tracked, they are consistent with the tree they sit in — a bisect sees the
 policy in force at each step, and a fresh clone is complete. The record of which release they came
-from is the project's declaration ([references](references.md#the-declaration)): one line,
+from is the project's declaration ([references](../references.md#the-declaration)): one line,
 project-owned, and the same line the documents resolve through, so there is no second stamp to
 keep beside it.
 
@@ -45,16 +45,16 @@ keep beside it.
 > **The vendored set changes only by a commit that rides the project's normal gates.** This
 > repository's release asks for that commit, by filing the item, in every project that trails.
 
-On a schedule, and on every release ([release-cycle](release-cycle.md#the-release)), the process
+On a schedule, and on every release ([release-cycle](../release-cycle.md#the-release)), the process
 walks every managed project and, where the project's declaration trails the latest release, files
-**the upgrade item** ([norm-flows](norm-flows.md#upgrade)). The project's own flow resolves it into
+**the upgrade item** ([norm-flows](../norm-flows.md#upgrade)). The project's own flow resolves it into
 one change: the declaration bumped to the release, every reference to this repository rewritten
-at it ([references](references.md#references)), and every vendored member written as that release
+at it ([references](../references.md#references)), and every vendored member written as that release
 has it. The filing is idempotent per project and release — a project already current gets
 nothing, and one with the item open gets nothing more.
 
 Catching up with the amended rules, rather than merely declaring them, is the second half of that
-same item ([upgrade](norm-flows.md#upgrade)): the bump lands, and the walk that follows files what
+same item ([upgrade](../norm-flows.md#upgrade)): the bump lands, and the walk that follows files what
 the tree owes. It never blocks the bump, because the two are sequential steps of one resolution —
 a tree declaring the new release with open gap items is the convention's normal state, while a
 tree declaring an old one is behind in a way only the open upgrade item tracks. **The open upgrade
@@ -85,7 +85,7 @@ path and the integration gate covers every path.
 ## What this is not
 
 - **Not the documents.** A document is referenced, never copied
-  ([references](references.md#what-a-project-holds)); the members here are the files a reference
+  ([references](../references.md#what-a-project-holds)); the members here are the files a reference
   cannot replace, because their reader is not a person following a citation but a platform
   reading a path.
 - **Not provisioned.** Provisioning sets up what is deliberately untracked — tools and hooks. A

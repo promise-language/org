@@ -1,9 +1,10 @@
 # Release Cycle
 
-> **Proposal.** Not normative: an end state under discussion, binding nothing until ratified.
-
 > **Tag:** `release-cycle` — remaining work to complete this document: the query named in
 > `docs/index.md`.
+
+> **Home:** [promise-language/org](https://github.com/promise-language/org) — this document
+> changes here and nowhere else. To change it, file an issue against `org`.
 
 How the corpus changes, and how a change reaches the fleet: the loop this repository runs, from
 an issue filed against a rule to the upgrade every project receives and the reconciliation it
@@ -30,7 +31,7 @@ gates, an item in its queue — and its own process does the rest.
 
 An issue about a document is filed in this repository, carries the document's tag where the
 filer knows which document it is, and carries what
-[reconciliation](../normative.md#reconciliation) requires of any item: the rule quoted, what
+[reconciliation](normative.md#reconciliation) requires of any item: the rule quoted, what
 fails under it, and the replacement text or the request for one. An issue about a rule no
 document states yet carries no tag, and the pass places it. A reader who meets the document in a
 project's tree and files there has filed in the natural wrong place; the issue is transferred here,
@@ -47,7 +48,7 @@ project a sync and a pass apiece, for a delta none of them can act on. An issue 
 
 Triage is continuous and mechanical: an unlabelled issue gets its document's tag; a duplicate is
 closed against the item it duplicates; an issue against a proposal carries that proposal's tag
-like any other ([header](../normative.md#header)), and is worked into the proposal directly,
+like any other ([header](normative.md#header)), and is worked into the proposal directly,
 since a proposal is freely rewritten and binds nothing while it waits.
 
 An issue on a question an open item already holds ([the amendment pass](#the-amendment-pass))
@@ -77,18 +78,18 @@ In order:
    ([ratification](norm-flows.md#ratification)), never something an amendment does on the way
    past.
 3. **Amend**, in one change under review, every document the pass touched — the
-   [lifecycle](../normative.md#lifecycle)'s amendment, landing before any release that carries it.
+   [lifecycle](normative.md#lifecycle)'s amendment, landing before any release that carries it.
    Every amendment states the rule and what it decides; prose that decides nothing is left out.
 4. **Close what the change resolves**: each incorporated item with a comment naming the section
    that now carries the decision, each rejected item with its reason, each carried item against
    the item that now holds its question — so the item's reader can check the claim in a minute.
 5. **Reconcile this repository** against the amended corpus
-   ([reconciliation](../normative.md#reconciliation)). Its own tree, tools, and proposals are held
+   ([reconciliation](normative.md#reconciliation)). Its own tree, tools, and proposals are held
    to the rules like any project's, and its gaps are items here, one per document.
 
 > **What the pass cannot decide it files**, as an item under the document's tag carrying the
 > decision, its candidates, and the evidence — never as prose saying the matter is open
-> ([end state](../normative.md#end-state)).
+> ([end state](normative.md#end-state)).
 
 Every item open when a pass begins ends closed — incorporated, rejected, or carried into the item
 that now holds its question — and what the pass carried is open in its place, so the tag query is
@@ -155,7 +156,7 @@ step changes who runs it, never what it does.
 The walk is the project's own work, on the upgrade item that carried the notes: read the release
 notes against the tree; file the gaps found — code the amended rule now forbids, a tool the
 amended contract now binds, a project document the change now contradicts — as items sized by
-area rather than one per document ([reconciliation](../normative.md#reconciliation)), each
+area rather than one per document ([reconciliation](normative.md#reconciliation)), each
 carrying the tags it answers to; the upgrade item finalizes when the items are filed. The gap
 items are then ordinary work, and the project's tag queries are its distance from the corpus.
 

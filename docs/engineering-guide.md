@@ -20,7 +20,7 @@ the agent does not read at the moment it has to be followed is a rule it does no
 
 **So every repository declares the release of this guide it stands on, and the agent reads the
 guide by following the reference at that release**
-([what a project holds](proposals/references.md#what-a-project-holds)) — one home, and no copy in
+([what a project holds](references.md#what-a-project-holds)) — one home, and no copy in
 any tree. How a project stands on the corpus and files a gap against it is
 [normative.md](normative.md)'s, and this guide relies on it without restating it. What is true
 only of one project lives in that project's own documents, which cite this one.

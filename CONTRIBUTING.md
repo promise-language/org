@@ -35,7 +35,7 @@ uncertain provenance, or excerpts whose license does not permit this dual licens
    under it, and the replacement text or the request for one. A change to a document here changes
    what "correct" means in every managed project, so the discussion belongs ahead of the diff — and
    issues are resolved together, in the amendment pass, not one at a time
-   ([docs/proposals/release-cycle.md](docs/proposals/release-cycle.md)).
+   ([docs/release-cycle.md](docs/release-cycle.md)).
 2. Read [docs/normative.md](docs/normative.md) — the corpus's own conventions govern changes to
    it: location decides binding, specifications carry no status, one fact has one home.
 3. A gap between a document and reality is an issue carrying the document's tag — here for
