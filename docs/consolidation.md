@@ -46,7 +46,8 @@ invisible until someone walks the two against each other.
 - **Whole or incremental** — whether the pass honours the marks or ignores them
   ([idempotency](#idempotency)). The first pass in a repository is necessarily whole.
 - **A focus** — an item or an area to start from. A focus orders the reading; it does not narrow
-  the scope.
+  the scope. A pass covers the whole backlog: a pass over one area would leave the invariant's
+  coverage half unchecked everywhere else.
 
 ## What it changes
 
@@ -114,6 +115,15 @@ corpus and the backlog whole, and that is what makes a re-run cost a fraction of
 > necessarily one. That is how an incomplete walk is repaired, because an incremental pass
 > inherits its predecessor's coverage — including the gaps its predecessor missed.
 
+> **A whole pass is due when the project adopts a corpus release, and whenever a person calls
+> one. A mark never expires on its own.** Any other pass runs when a person files one, and is
+> incremental.
+
+A release moves the rules every placement was judged against, so it is the trigger no
+incremental pass can be trusted to catch, and it arrives on a clock the project already keeps. A
+mark that expired by age would re-open placements nothing had moved, which is the oscillation the
+marks exist to stop.
+
 ## Steps
 
 The kinds are [norm-flows](norm-flows.md#steps)'s, so this converts to a flow without rewriting.
@@ -140,6 +150,10 @@ The kinds are [norm-flows](norm-flows.md#steps)'s, so this converts to a flow wi
 > **Nothing is written to the store before step 14.** Steps 1 through 13 produce one document and
 > one conversation. A pass that had already closed forty items when the maintainer disagreed with
 > its areas cannot be taken back.
+
+Steps of kind `ask` and `converse` park for the maintainer; every other step may run unattended.
+The flow's prompt cites this document and carries no copy of it
+([prompts point here](engineering-guide.md#prompts-point-here)).
 
 ## Areas
 
@@ -205,6 +219,10 @@ play and takes `keep` without being read for an outcome at all ([idempotency](#i
 > **A consolidation files requests, never proposals.** A [request](norm-flows.md#request) is the
 > defined channel and costs the corpus one row in its next amendment pass. Writing a proposal is
 > design work, and design work dressed as triage is a direction nobody chose.
+
+> **A request for another repository goes into the batch at step 12**, and is filed only once the
+> maintainer has seen it. An item arriving in another project's tracker speaks for this one, and
+> a pass running unattended is not the maintainer.
 
 ## Merging
 

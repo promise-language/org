@@ -47,23 +47,23 @@ every program [logging](logging.md#scope) binds, and every document that names o
 
 It does not own the identities of work — a project, an item, a step, a step run, a claim, an
 account — which are the orchestrators' and base's wire types'. It does not own how a host or an
-arena is registered with an orchestrator, or what makes a registration trusted: that is the
-credential the orchestrator issues, and [registration](#registration) says why the id here is not
-it. It does not own what a log line carries, which is [logging](logging.md)'s.
+arena is registered, or what makes a registration trusted: that is the credential registration
+issues, and [registration](#registration) says why the id here is not it. It does not own what a
+log line carries, which is [logging](logging.md)'s.
 
 ## The five identities
 
 | Identity | What it names | Created by | Kept in | Survives | Ends with |
 |---|---|---|---|---|---|
-| **Host** | a physical or virtual machine, with the one account on it that runs the development tools | provisioning, with a person confirming its label | the host home's record | reboots, relabelling, reprovisioning, every tool upgrade | the host home's removal |
-| **Guest** | a container or virtual machine on a host, which arenas live in | whatever creates the guest | the guest's own host home | the guest's restarts | the guest's destruction |
+| **Host** | a physical or virtual machine, with the one account on it that runs the development tools | the governor's installation, with a person confirming its label | the host home's record | reboots, relabelling, reprovisioning, every tool upgrade | the host home's removal |
+| **Guest** | a container or virtual machine on a host, which arenas live in | the governor that creates the guest | the guest's own host home | the guest's restarts | the guest's destruction |
 | **Arena** | a checkout units of work are leased to | provisioning, the first time it provisions the checkout | `.workspace/arena.json` in the checkout | reprovisioning, moving the directory, every clear of `.home/` | the checkout's removal |
 | **Tool** | one build of one program, as it was invoked | the build | the binary | — | — |
 | **Process** | one execution of a tool | the process, as it starts | its own memory, and its log | nothing | its exit |
 
 > **One operating-system account on a machine runs the development tools and the orchestration
-> system, and the host home is that account's.** Provisioning refuses to create a host identity
-> on a machine where it can see those tools running under another account.
+> system, and the host home is that account's.** The governor's installation refuses to create a
+> host identity on a machine where it can see those tools running under another account.
 
 One account keeps one machine one host. A second account's tools could not see the first account's
 host home, so they would create a second identity for the same machine, keep a second log home and
@@ -154,11 +154,11 @@ A tool has no label. It is known by its executable's own name, fixed by the proj
 | **Tool** | none: a tool is known by the bare name it was invoked as | — |
 | **Process** | none: a process is known by its tool and its id | — |
 
-> **A host's label is confirmed by the person who creates the host.** At a terminal, provisioning
-> shows the derived label and asks for it to be accepted or replaced. Without a terminal, the label
-> is given on the command line by whoever creates the host on a person's behalf. A host whose label
-> was neither confirmed nor given is not created: provisioning refuses and names the flag that
-> supplies it.
+> **A host's label is confirmed by the person who creates the host.** At a terminal, the governor's
+> installation shows the derived label and asks for it to be accepted or replaced. Without a
+> terminal, the label is given on the command line by whoever creates the host on a person's
+> behalf. A host whose label was neither confirmed nor given is not created: the installation
+> refuses and names the flag that supplies it.
 
 Only a host's label is asked for. A host's derived label comes from whatever a DNS server, a cloud
 vendor or an installer chose — `localhost`, `ip-10-0-3-17`, `DESKTOP-7Q2M4KD` — or from its owner,
@@ -221,14 +221,13 @@ An arena's record is `.workspace/arena.json` in its checkout:
 ```
 
 > **A record is written only by its creator, and read by everything.** Every program may read the
-> host home's record and its own checkout's arena record. Only provisioning writes a host's or an
-> arena's record, and only a guest's creator writes a guest's. A program that finds no record
-> reports the thing as unknown, and never creates an id for it.
+> host home's record and its own checkout's arena record. Only the governor's installation writes a
+> host's record, only provisioning writes an arena's, and only a guest's creator writes a guest's.
+> A program that finds no record reports the thing as unknown, and never creates an id for it.
 
 > **A project or workspace tool running in an arena writes nothing outside its checkout.** Tools
 > run concurrently in many arenas on one machine, and two of them writing the same path outside
-> their checkouts overwrite each other's work with neither able to tell (workspace's
-> `docs/tooling.md`, *An agent writes only where it is working*).
+> their checkouts overwrite each other's work with neither able to tell.
 
 > **Infrastructure those tools share may write to a shared location outside every checkout, and
 > only where all three hold:**
@@ -240,7 +239,7 @@ An arena's record is `.workspace/arena.json` in its checkout:
 >   there uses it. Writing there any other way is a defect.
 >
 > The [log home](logging.md#where-a-log-is-written) is such a location. The host home's record is
-> not: provisioning alone writes it.
+> not: the governor's installation alone writes it.
 
 So a tool in an arena could not create a host record even if it would. And a program that created
 an id wherever it found none would give the host a second identity, which the next such program
@@ -262,13 +261,12 @@ Every creator runs the same procedure, implemented once:
 
 Who runs it:
 
-- **A host's identity** is created by workspace's provisioning the first time it acts on the host.
-  Hosting, for a host it creates, supplies the label through the machine's first boot, where
-  provisioning creates the record.
-- **A guest's identity** is created by the guest's creator — the arena provider that starts the
-  container or virtual machine, or hosting. Only the creator knows the parent, so it writes the
-  record into the guest before any arena there runs, copying the parent from its own host home's
-  record.
+- **A host's identity** is created by the governor's installation, where a person confirms its
+  label. Hosting, for a host it creates, supplies the label through the machine's first boot, where
+  the installation creates the record. Provisioning reads the record and never creates one.
+- **A guest's identity** is created by the governor that creates the guest. Only the creator knows
+  the parent, so it writes the record into the guest before any arena there runs, copying the
+  parent from its own host home's record.
 - **An arena's identity** is created by workspace's provisioning when it first provisions the
   checkout.
 
@@ -334,18 +332,26 @@ stages — and in those the ancestor is alive when the descendant records it.
 
 ## Registration
 
-> **Registering a host, a guest or an arena with an orchestrator presents the id this document
-> defines. The orchestrator does not mint another.**
+> **The governor registers its machine with the fleet when it is installed, with a person
+> present.** The host's id is joined to the person's account, and the machine's credential is
+> issued to the governor, which keeps it. A guest is registered through the host that created it.
+> An orchestrator registers arenas and no host. Every registration presents the id this document
+> defines, and nothing mints another.
 
-Whether a registration is trusted is a separate question, and the orchestrator answers it with a
-credential it issues and rotates, never with the id. An id is a name, and a name every program on
-the machine can read is not a secret. A copied record is caught where a copied credential is
-caught, by the orchestrator refusing a credential it has superseded. The id stays what every log
-line, lease and exclusion on that host is joined by, whether or not any orchestrator ever sees it.
+The governor is the program for it because exactly one runs on every governed machine, it is
+installed by a person before anything else there needs an identity, and it is updated by one
+project, independent of any orchestrator. A machine whose arenas serve several orchestrators is
+still one host with one registration.
+
+Whether a registration is trusted is a separate question, answered by the credential registration
+issues and rotates, never by the id. An id is a name, and a name every program on the machine can
+read is not a secret. A copied record is caught where a copied credential is caught, by the
+registration refusing a credential it has superseded. The id stays what every log line, lease and
+exclusion on that host is joined by, whether or not the machine is ever registered.
 
 > **Registration is where an identity first leaves its machine.** Creating an identity sends
 > nothing anywhere. Registering joins a host's id, and its guests' and arenas' ids, to the account
-> that registered them. That join is kept in the orchestrator's registration record, which the
+> that registered them. That join is kept in the fleet's registration record, which the
 > projects' maintainers read, and only they do.
 
 The join is what turns a random id into a named person's machine, so it is kept in one record and
@@ -361,6 +367,6 @@ line it could place. A host that last phoned home 90 days ago has shipped nothin
 > **A request to export or delete everything under a host covers its registration record**, along
 > with the lines the store keeps ([logging](logging.md#the-store)).
 
-> **A person is shown where the development fleet's privacy notice is at the two moments a person
-> is present for this:** when provisioning asks them to confirm a host's label, and when a machine
-> is first registered with an orchestrator that offers a store.
+> **A person is shown where the development fleet's privacy notice is at the one moment a person
+> is present for this:** the governor's installation, where they confirm the host's label and the
+> machine is registered.

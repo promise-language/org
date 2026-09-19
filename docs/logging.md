@@ -108,9 +108,9 @@ account because a log carries command lines and paths.
 > every file in it is named by a [unique id](#files), and each language has exactly one
 > implementation of this document's writer, which every bound program in that language uses.
 
-Workspace's `docs/tooling.md`, *An agent writes only where it is working*, keeps project and
-workspace tools out of shared directories because two arenas writing the same `/tmp/test.csv`
-overwrite each other's work, and neither can tell. A log home has none of that failure:
+[Identity](identity.md#where-records-are-kept) keeps project and workspace tools out of shared
+directories because two arenas writing the same `/tmp/test.csv` overwrite each other's work, and
+neither can tell. A log home has none of that failure:
 
 - **Its location is defined.** No writer chooses a path, so no two choose the same one by accident.
 - **Its names are unique by construction.** Every name carries a 128-bit id, so no two writers on
@@ -254,8 +254,8 @@ and anything after it is a line still being written.
 > `data` — every field, every argument and every message alike — before the line is cut to its
 > bound.
 
-> **The log sanitizer is not a guard.** A disclosure guard, as flow's `docs/disclosure.md` defines
-> one, refuses text, returns it to its author, and never modifies what it examines. A log line has
+> **The log sanitizer is not a guard.** A disclosure guard refuses text, returns it to its
+> author, and never modifies what it examines. A log line has
 > no author to return it to, and a refused line would be a lost one. So the sanitizer edits
 > instead: it replaces what it detects and writes the rest.
 
@@ -275,8 +275,8 @@ What the sanitizer replaces, each by a marker naming its category:
 | **Internal address** | a private network address, or a host name under `.local` or `.internal` | `<address>` |
 | **Path** | the rule below | `<path>`, or the path rewritten |
 
-The categories are those of flow's `docs/disclosure.md`, as far as each can be detected in text
-without knowing where the text came from. This document owns what the sanitizer does with them:
+Each category is detected only as far as it can be in text, without knowing where the text came
+from. This document owns what the sanitizer does with them:
 when it runs, what it writes in their place, how it marks a line, and what happens when it cannot
 run.
 
@@ -496,9 +496,10 @@ there is none, and changing one of these numbers is an amendment to this documen
 
 ## Reading a log
 
-> **A log is read with `logs`, a workspace tool.** It reads its machine's log home and changes
-> nothing in it: it never removes, prunes or rewrites a file. Reading a log therefore never changes
-> what the bounds or the shipper see.
+> **A log is read with `logs`, a workspace tool.** It reads its machine's log home and nothing
+> else, and changes nothing in it: it never removes, prunes or rewrites a file. Reading a log
+> therefore never changes what the bounds or the shipper see. What the store holds is read from
+> the store ([the store](#the-store)).
 
 It answers, on any machine and in the same way:
 
@@ -512,7 +513,7 @@ It answers, on any machine and in the same way:
 
 Its output follows [the CLI guide](cli-guide.md#output-modes): rendered for a person at a
 terminal, and the lines themselves, unchanged, when read by a program. Its command surface is
-workspace's, in its `docs/tool-contract.md`.
+workspace's.
 
 A person looking for a log starts from something the file layout was never designed around: a
 pid read from `ps`, an item, an arena, the governor's last hour. A directory listing answers only
@@ -530,8 +531,8 @@ A role, because what shipping requires is the rules in this section, not a parti
 program fills it by following them. The program that fills the role is stated as an end state and
 changes by amendment:
 
-- **On a host the governor runs on**, the governor's stage 1 is the shipper.
-- **In a guest**, the runner serving the guest's arenas is the shipper.
+- **On a machine the governor runs on — a host or a guest —** the governor's stage 1 is the
+  shipper.
 - **A machine where no program fills the role ships nothing.** Its logs stay where they were
   written, within their bounds.
 
@@ -594,10 +595,17 @@ arena involves the shipper.
 > end, and the process's recorded `pid` and `started` no longer run on its machine, the shipper
 > tells the store once.
 
-The shipper learns the store's address from the orchestrator its machine is registered with, and
-that orchestrator either offers a store or offers none. An orchestrator without one leaves every log
-on the machine that wrote it. The form of the request that carries lines to the store, and of the
-acknowledgment that comes back, is base's.
+The shipper ships to the fleet's store. The governor carries the store's address, stamped as a
+stable name into the release it is built from, and ships with the credential its machine's
+registration issued ([identity](identity.md#registration)). A machine that was never registered
+ships nothing, and its logs stay where they were written, within their bounds. The form of the
+request that carries lines to the store, and of the acknowledgment that comes back, is base's.
+
+The governor is the shipper everywhere because it is the one program every governed machine runs
+exactly once, from the moment it is installed, protected from being killed, and updated
+independently of any orchestrator. A guest's arenas may serve several orchestrators, each with a
+runner of its own; a shipper in each would be one per orchestrator, and a guest whose runners had
+not started would ship nothing of its own bootstrap.
 
 ## The store
 
@@ -623,14 +631,15 @@ only ever deletes sooner.
 > **The projects' maintainers read the store. A contributor reads only the lines of processes that
 > ran on hosts registered under their account, and on those hosts' guests and arenas.**
 
-Which hosts are a contributor's is answered by the orchestrator's registration record at the
+Which hosts are a contributor's is answered by the fleet's registration record at the
 moment they read ([identity](identity.md#registration)). The store is never told, and never keeps
 a copy.
 
 > **The store keeps lines, not connections.** It records no source address of a delivery, and it
 > holds ids, never accounts.
 
-> **The store, and the orchestrator that keeps the registration record, run in the United States.**
+> **The store, and the registration service that keeps the registration record, run in the
+> United States.**
 > They run on hosts in a fleet that hosting manages, on one of the providers hosting supports, in a
 > region within the United States. Hosting's host model gives each fleet one location, stated
 > where the fleet is defined.
@@ -640,7 +649,8 @@ what the development fleet's privacy notice promises. The provider and the regio
 country are not: they are facts of a deployment that can change without any rule here changing,
 and naming them would give a second home to a fact the fleet's definition already holds.
 
-> **Moving the store or the orchestrator to another country is an amendment to this document**,
+> **Moving the store or the registration service to another country is an amendment to this
+> document**,
 > and it lands only after the development fleet's privacy notice states the new country.
 
 > **Everything under a host can be exported or deleted.** At a maintainer's request the store
@@ -653,6 +663,5 @@ A person who leaves the fleet can ask for their data and for its removal, and th
 their machines are found. Deleting evidence does not conflict with [a log is
 evidence](#a-log-is-evidence): nothing decides on a log, so removing one changes no decision.
 
-> **Nothing in a log is published.** A log names hosts, arenas, paths and command lines, which are
-> the disclosure categories of flow's `docs/disclosure.md`. A line quoted anywhere public passes
-> the disclosure guard first, like any other text.
+> **Nothing in a log is published.** A log names hosts, arenas, paths and command lines. A line
+> quoted anywhere public passes the disclosure guard first, like any other text.

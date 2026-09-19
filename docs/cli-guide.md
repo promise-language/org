@@ -14,14 +14,8 @@ parameters, how it reports, and how it refuses. Its blockquotes are read as
 
 This document governs the invocation surface of every command-line tool an organization project
 ships — the `bin/` tools and any binary a project's contributors or agents run by hand. It does not
-own:
-
-- **Which tools a project must have** — workspace's tool contract, its `docs/tool-contract.md`,
-  owns that.
-- **The gate envelope and the `--envelope` protocol** — base's gate contract, its
-  `docs/gate-contract.md`, owns that.
-- **How tools are built, provisioned, and kept fresh** — workspace's tooling document, its
-  `docs/tooling.md`, owns that.
+own which tools a project must have, the gate envelope and the `--envelope` protocol, or how tools
+are built, provisioned, and kept fresh.
 
 ## Explicit inputs
 
@@ -95,10 +89,20 @@ A second name for the same thing is a second thing to search for, a second thing
 guard, and a fork in every transcript. The words a name may use are the engineering guide's, and
 a flag has no exception of its own.
 
+> **A flag given twice is a usage error**, naming the flag and both values, whether or not the
+> two agree. Repetition is not a second way to build a list: a list is one flag, once.
+
+Every flag library's default is that the last value wins, silently, and the operator who typed
+both has no way to learn that one was discarded. It is the case
+[invocation from a file](#invocation-from-a-file) already decides for the file and the command
+line — two spellings of one parameter, neither of which may quietly win — decided for the command
+line alone.
+
 > **A value flag declares a type, and takes its value as the next argument or attached with
-> `=`.** String, integer, duration, path, enumeration, or a list of one of those — boolean is not
-> a value type — and the type is part of the flag's definition, printed by `-help`, and a value
-> that does not satisfy it is a usage error naming the flag, the value, and the expected type.
+> `=`.** String, integer, duration, moment, path, enumeration, or a list of one of those — boolean
+> is not a value type — and the type is part of the flag's definition, printed by `-help`, and a
+> value that does not satisfy it is a usage error naming the flag, the value, and the expected
+> type.
 
 `-timeout 30s` and `-timeout=30s` are one parameter, as the two prefixes are one flag: the tool
 normalizes the spelling once and matches the value against the type.
@@ -113,13 +117,28 @@ parameter file carrying a duration means different things to different readers o
 grammar is one parser in every language and one value that travels a command line, a file, and a
 wire field unchanged. The units are the ones a reader needs no knowledge of the tool to read.
 
+> **A moment is RFC 3339 in UTC: `2026-09-15T10:00:00Z`, with a fraction of a second where the
+> value carries one.** The offset is always `Z`. A bare date, a local time, and any other offset
+> are not a moment — on the command line, in the parameter file, and in any field a tool writes.
+
+It is the duration's reasoning applied to an instant: a flag that took one as `string` would parse
+it itself, `-help` would print `string`, and two tools would accept different spellings of the
+same moment. One offset makes two moments comparable as text, and it is the form a
+[log line's](logging.md#the-line) `time` already takes.
+
 > **A list is `list of <type>`: comma-separated on the command line, an array in the parameter
-> file, every element checked as its type.** An empty element is a usage error.
+> file, every element checked as its type.** An empty element is a usage error, and a list flag's
+> default is the empty list.
 
 A list declared as a string is a parser per tool: `-help` says `string`, which is true and useless;
 one tool drops an empty element where the next refuses it and a third takes a trailing comma; and
 the parameter file has nothing to map an array to. Naming the element type keeps the check where
 the type is.
+
+The empty default is the closed choice, and so the reversible one
+([types and shape](engineering-guide.md#types-and-shape)). A list whose default held elements would
+need a spelling for none, and an empty element is refused; a tool that needs elements by default
+has a list the caller must give, or a flag of its own for what the default means.
 
 > **A boolean flag has a spelling for each state that differs from its default — `-my-flag`
 > asserts it, `-no-my-flag` denies it — and a spelling that could only restate the default does
@@ -294,17 +313,19 @@ asked for under the one flag that promised none. Whatever else is on the line is
 than ignored: the operator who typed `tool sync -help origin` may have meant the help and may
 have meant the command, and guessing is worse than either answer.
 
-> **A tool whose every action is a subcommand orients when invoked bare.** `tool` alone prints
-> its `-version` line, then a brief help: its most common commands with their one-line
-> descriptions, and how to reach the full surface (`tool -help`). It exits 0 and does nothing
-> else. In JSON it is the `-version` object with `commands` added — the entries `-help` gives,
-> for the common commands only.
+> **A tool whose every action is a subcommand, invoked without one, has been handed a malformed
+> invocation** ([fail closed](#fail-closed)). It exits 2 with stdout empty, and on stderr it
+> writes, in this order: what is missing and its most common commands, its `-version` line, what
+> it is in one line, and how to reach the full surface (`tool -help`).
 
-A bare `bin/issue` is a person finding their footing. The version comes first because "which build
-is this" is the first thing a bug report needs; the brief help answers "what do I type next" without
-the wall of definitions [fail closed](#fail-closed) refuses to dump, and the full list stays one
-flag away. Which commands are common is the tool's own specification's choice, and the list is short
-by design. A tool with a root action has no such courtesy — invoked bare, it runs.
+Nothing was asked, so nothing was examined, and [exit codes](#exit-codes) makes that 2: a status
+0 would tell a script that wrapped the tool the work was done, and an object on stdout would be
+parsed as a result by a caller waiting for one. A bare `bin/issue` is still a person finding
+their footing, and gets what they need on the stream a person reads. The missing word comes first
+because "what do I type next" is the question; the version next, because a reader who stopped
+short may also hold the wrong build. Which commands are common is the tool's own specification's
+choice, and the list is short by design. A tool with a root action has no such case — invoked
+bare, it runs.
 
 ## Fail closed
 
@@ -384,6 +405,15 @@ keeps the answer from depending on which flag was typed.
 A sentinel at the head of stderr is prose, not a protocol: the first rewording breaks every
 matcher, and the matchers live in other repositories than the tool.
 
+> **A refusal an override would clear exits 1, and its result is the same object**: the
+> condition, and as the recovery the one flag that overrides it
+> ([no general switches](#no-general-switches)).
+
+The subject was examined and the tool declined to go on, so the status is the subject's, and one
+shape carries every refusal. A caller that has only the status knows the work did not complete; a
+caller that reads the result knows whether fixing the subject or passing the flag is the way on.
+A fifth status would split `1` for a distinction the object already makes.
+
 ## Configuration
 
 > **A tool has no configuration file.** The answer to "should this be configurable" is no, and a
@@ -426,6 +456,14 @@ them are not read ([explicit inputs](#explicit-inputs)): the location is the sam
 invocation on the host, which is what makes it a machine fact rather than an ambient one. A file
 that does not parse, or names a key that is not a configurable flag, is refused before any action
 ([fail closed](#fail-closed)).
+
+> **One name in the state location is not a tool's: `promise-language` is the host home**
+> ([identity](identity.md#where-records-are-kept)), which every bound tool reads and whose log home
+> it writes, and no tool takes that name.
+
+A reader of this section learns every place a tool keeps its own files, and the host home sits in
+the same directory holding none of them. Naming it here, and reserving its name, keeps a tool from
+ever keeping its own state where the machine's identity and logs are.
 
 A **released product** whose layout this rule does not fit — a language toolchain with module
 caches, build outputs, and per-project state is more than one directory of each — takes its own

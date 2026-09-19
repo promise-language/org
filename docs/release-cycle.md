@@ -27,6 +27,9 @@ Five steps in one direction, each with one actor and one product:
 Nothing in the loop pushes to a project. A project receives proposals — a change riding its
 gates, an item in its queue — and its own process does the rest.
 
+> **The corpus maintainer is whoever holds the maintainer role on this repository.** The role
+> does not rotate by rule; it changes as the repository's maintainers change.
+
 ## Intake
 
 An issue about a document is filed in this repository, carries the document's tag where the
@@ -100,6 +103,14 @@ place.
 
 A pass that finds nothing to amend is a legitimate result: it closes or keeps its items with the
 reason, and cuts no release.
+
+> **The maintainer runs the pass on demand, and before every release.** A release carries every
+> pass landed since the one before it, and an issue that cannot wait says so and is read in a pass
+> run early ([intake](#intake)).
+
+A period would run the pass when nothing is waiting, and a threshold would hold back a pass the
+maintainer knows is needed. On demand is the only cadence that follows what is open, and the
+release is where the fleet pays for it, so no pass is left out of one.
 
 ## The release
 

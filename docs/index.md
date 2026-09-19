@@ -18,6 +18,15 @@ query is:
 
 > `gh issue list --label <tag> --state open --limit 200`
 
+## Dependencies
+
+The repositories whose documents this corpus references, and the release of each it stands on
+([the declaration](references.md#the-declaration)):
+
+| Repository | Release |
+|---|---|
+| `promise` | `epoch-2026.9` |
+
 ## Specifications
 
 - [normative.md](normative.md) — What makes a document in a managed project binding, and the one

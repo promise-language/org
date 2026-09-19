@@ -74,6 +74,7 @@ additions are the whole list.
 | `abs` | absolute |
 | `arg` | argument |
 | `attr` | attribute |
+| `cmd` | command |
 | `config` | configuration |
 | `dest` | destination |
 | `dir` | directory |
@@ -87,6 +88,7 @@ additions are the whole list.
 | `max` | maximum |
 | `millis` | milliseconds |
 | `min` | minimum |
+| `pid` | process identifier |
 | `pos` | position |
 | `prev` | previous |
 | `repo` | repository |
@@ -172,6 +174,12 @@ that was understood perfectly well at the time.
   your head, because that is the only moment it is cheap.
 - **A gap found in someone else's work is filed the same way**, whether or not you are the one to
   close it.
+- **Before filing, search the open items for the area.** Where an item already covers it, add a
+  line to that item rather than filing beside it — any item that is open and not being worked may
+  be amended and brought up to the current context. File a new item only where no area covers the
+  claim ([reconciliation](normative.md#reconciliation)).
+- **File the area, not the incident.** A broad title and one item covering a surface, with the
+  incident as a checklist line under it, over three items covering three symptoms of one defect.
 
 ## Do not work around the platform
 

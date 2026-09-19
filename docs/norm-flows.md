@@ -145,6 +145,16 @@ only then does the flow move on. What that costs is a person's attention for a s
 than once, so it wants a surface built for it. Where a flow has none, a person runs the step,
 and the flow resumes at the step it names.
 
+> **A `converse` opens on an artifact and returns it approved.** It is handed what the step
+> before it produced — a table, a diff, a draft — and what it returns is that artifact as the
+> person approved it, never the transcript that got there. Only the person settles it. A loop
+> nobody closes stays parked, and parked is in progress.
+
+The artifact is what the next step acts on and what a later reader checks, so it is what the loop
+must hand on; the transcript is how it was reached, and a step that acted on a transcript would be
+choosing which of its turns to believe. The step cannot settle its own loop, because the loop
+exists for the judgment the step does not have.
+
 ## request
 
 A request that the corpus be amended, whatever the reason: a rule that is wrong or unclear, a
@@ -282,7 +292,7 @@ flow does before the move is establish that it should ([lifecycle](normative.md#
 |---|---|---|---|
 | 1 | **Check the precondition** — the pass has landed, and this repository's own `norm: reconciliation` is closed | `check` | 3 where both hold, else 2 |
 | 2 | **Say what is missing** — name the unmet precondition to the maintainer | `ask` | 1 |
-| 3 | **Write the notes** — per amended document, what changed and what a dependent now looks for in its own tree, and every heading renamed and every document moved or retired ([the two sides](references.md#the-two-sides)) | `edit` | 4 |
+| 3 | **Write the notes** — per amended document, what changed and what a dependent now looks for in its own tree, and every heading renamed and every document moved or retired ([the two sides](references.md#the-two-sides)); notes that omit a rename, a move or a retirement the two releases' headings and paths show are refused, and written again | `edit` | 4 |
 | 4 | **Approve the notes** — they are what every dependent's upgrade and reconciliation runs on | `ask` | 5 |
 | 5 | **Tag** — annotated, at the landed commit, with the release entry carrying the notes | `land` | 6 |
 | 6 | **File the upgrades** — a `norm: upgrade` in every trailing dependent, carrying the notes; each project's own flow adopts the release and then walks its tree against it ([upgrade](#upgrade)) | `file` | 7 |

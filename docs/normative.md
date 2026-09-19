@@ -108,6 +108,11 @@ The practical test: **a specification reads identically the day before and the d
 work that implements it.** A sentence that would have to change when an item closes is status,
 and does not belong.
 
+**A staged migration is not phasing inside a specification: it is a document of its own.** Its
+steps are what a reader executes, not a record of how many have been done, and it is the one-shot
+document the [lifecycle](#lifecycle) delivers and archives when it completes. A standing
+specification carries no migration section; it links the migration while one is in force.
+
 Where status lives instead, and all three are queries or single homes rather than prose in a
 specification:
 

@@ -127,6 +127,13 @@ that stands in for that: a dependent's upgrade stops on exactly the changes name
 notes are where it finds what the reference should say instead. A rename a release does not
 announce is a dependent's stopped upgrade with nothing to read.
 
+> **The notes are checked.** The release compares the two releases' headings and document paths,
+> and refuses notes that omit a heading renamed, a document moved, or a document retired.
+
+The notes are the one thing standing in for the references a home cannot repair, so they are the
+one part of a release a rule written as a sentence would let slip exactly once. The comparison is
+mechanical: two trees, their headings and their paths.
+
 > **A dependent upgrades as one reviewed change, when it has a reason to.** Nothing files it for
 > the dependent, and trailing a release is not a defect: the release it declares still exists and
 > still says what it said.

@@ -9,8 +9,8 @@
 The [engineering guide](engineering-guide.md) applied to Promise source (`.pr` files). Nothing here
 contradicts it; everything here is Promise-specific form. Promise's additions to the guide's
 abbreviation dictionary — `ch` for *character*, and what its released standard library adds under
-the guide's released-product carve-out — live in promise's `docs/language-design.md`, its
-`approved-abbreviation-dictionary` section.
+the guide's released-product carve-out — live in promise's
+[approved abbreviation dictionary](https://github.com/promise-language/promise/blob/epoch-2026.9/docs/language-design.md#approved-abbreviation-dictionary).
 
 ## Fields and construction
 
